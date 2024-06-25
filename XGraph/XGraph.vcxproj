@@ -163,6 +163,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\XGEngine.cpp" />
+    <ClCompile Include="Source\XGMesh.cpp" />
     <ClCompile Include="Source\XGraph.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -238,6 +239,9 @@
     </ClCompile>
     <ClCompile Include="Source\XGVector3D.cpp" />
     <ClCompile Include="ThirdParty\olcPixelGameEngine.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\Spaceship.obj" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

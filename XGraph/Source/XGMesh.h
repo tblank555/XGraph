@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <string>
 #include <vector>
 
 #include "XGTriangle.h"
@@ -12,4 +13,6 @@
 struct XGMesh
 {
     std::vector<XGTriangle> Triangles;
+
+    bool LoadFromObjectFile(std::string FilePath);
 };

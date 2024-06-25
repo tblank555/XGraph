@@ -7,77 +7,88 @@
 
 #include "XGTriangle.h"
 
+XGEngine::XGEngine(const std::string& MeshFilePath)
+{
+    if (!MeshFilePath.empty())
+    {
+        MeshToRender.LoadFromObjectFile(MeshFilePath);
+    }
+    else
+    {
+        // Create a unit cube to render
+        MeshToRender.Triangles = {
+            // South face
+            XGTriangle(
+                XGVector3D(0.0f, 0.0f, 0.0f),
+                XGVector3D(0.0f, 1.0f, 0.0f),
+                XGVector3D(1.0f, 1.0f, 0.0f)
+            ),
+            XGTriangle(
+                XGVector3D(0.0f, 0.0f, 0.0f),
+                XGVector3D(1.0f, 1.0f, 0.0f),
+                XGVector3D(1.0f, 0.0f, 0.0f)
+            ),
+            // East face
+            XGTriangle(
+                XGVector3D(1.0f, 0.0f, 0.0f),
+                XGVector3D(1.0f, 1.0f, 0.0f),
+                XGVector3D(1.0f, 1.0f, 1.0f)
+            ),
+            XGTriangle(
+                XGVector3D(1.0f, 0.0f, 0.0f),
+                XGVector3D(1.0f, 1.0f, 1.0f),
+                XGVector3D(1.0f, 0.0f, 1.0f)
+            ),
+            // North face
+            XGTriangle(
+                XGVector3D(1.0f, 0.0f, 1.0f),
+                XGVector3D(1.0f, 1.0f, 1.0f),
+                XGVector3D(0.0f, 1.0f, 1.0f)
+            ),
+            XGTriangle(
+                XGVector3D(1.0f, 0.0f, 1.0f),
+                XGVector3D(0.0f, 1.0f, 1.0f),
+                XGVector3D(0.0f, 0.0f, 1.0f)
+            ),
+            // West face
+            XGTriangle(
+                XGVector3D(0.0f, 0.0f, 1.0f),
+                XGVector3D(0.0f, 1.0f, 1.0f),
+                XGVector3D(0.0f, 1.0f, 0.0f)
+            ),
+            XGTriangle(
+                XGVector3D(0.0f, 0.0f, 1.0f),
+                XGVector3D(0.0f, 1.0f, 0.0f),
+                XGVector3D(0.0f, 0.0f, 0.0f)
+            ),
+            // Top face
+            XGTriangle(
+                XGVector3D(0.0f, 1.0f, 0.0f),
+                XGVector3D(0.0f, 1.0f, 1.0f),
+                XGVector3D(1.0f, 1.0f, 1.0f)
+            ),
+            XGTriangle(
+                XGVector3D(0.0f, 1.0f, 0.0f),
+                XGVector3D(1.0f, 1.0f, 1.0f),
+                XGVector3D(1.0f, 1.0f, 0.0f)
+            ),
+            // Bottom face
+            XGTriangle(
+                XGVector3D(1.0f, 0.0f, 1.0f),
+                XGVector3D(0.0f, 0.0f, 1.0f),
+                XGVector3D(0.0f, 0.0f, 0.0f)
+            ),
+            XGTriangle(
+                XGVector3D(1.0f, 0.0f, 1.0f),
+                XGVector3D(0.0f, 0.0f, 0.0f),
+                XGVector3D(1.0f, 0.0f, 0.0f)
+            )
+        };
+    }
+}
+
 bool XGEngine::OnUserCreate()
 {
-    MeshCube.Triangles = {
-        // South face
-        XGTriangle(
-            XGVector3D(0.0f, 0.0f, 0.0f),
-            XGVector3D(0.0f, 1.0f, 0.0f),
-            XGVector3D(1.0f, 1.0f, 0.0f)
-        ),
-        XGTriangle(
-            XGVector3D(0.0f, 0.0f, 0.0f),
-            XGVector3D(1.0f, 1.0f, 0.0f),
-            XGVector3D(1.0f, 0.0f, 0.0f)
-        ),
-        // East face
-        XGTriangle(
-            XGVector3D(1.0f, 0.0f, 0.0f),
-            XGVector3D(1.0f, 1.0f, 0.0f),
-            XGVector3D(1.0f, 1.0f, 1.0f)
-        ),
-        XGTriangle(
-            XGVector3D(1.0f, 0.0f, 0.0f),
-            XGVector3D(1.0f, 1.0f, 1.0f),
-            XGVector3D(1.0f, 0.0f, 1.0f)
-        ),
-        // North face
-        XGTriangle(
-            XGVector3D(1.0f, 0.0f, 1.0f),
-            XGVector3D(1.0f, 1.0f, 1.0f),
-            XGVector3D(0.0f, 1.0f, 1.0f)
-        ),
-        XGTriangle(
-            XGVector3D(1.0f, 0.0f, 1.0f),
-            XGVector3D(0.0f, 1.0f, 1.0f),
-            XGVector3D(0.0f, 0.0f, 1.0f)
-        ),
-        // West face
-        XGTriangle(
-            XGVector3D(0.0f, 0.0f, 1.0f),
-            XGVector3D(0.0f, 1.0f, 1.0f),
-            XGVector3D(0.0f, 1.0f, 0.0f)
-        ),
-        XGTriangle(
-            XGVector3D(0.0f, 0.0f, 1.0f),
-            XGVector3D(0.0f, 1.0f, 0.0f),
-            XGVector3D(0.0f, 0.0f, 0.0f)
-        ),
-        // Top face
-        XGTriangle(
-            XGVector3D(0.0f, 1.0f, 0.0f),
-            XGVector3D(0.0f, 1.0f, 1.0f),
-            XGVector3D(1.0f, 1.0f, 1.0f)
-        ),
-        XGTriangle(
-            XGVector3D(0.0f, 1.0f, 0.0f),
-            XGVector3D(1.0f, 1.0f, 1.0f),
-            XGVector3D(1.0f, 1.0f, 0.0f)
-        ),
-        // Bottom face
-        XGTriangle(
-            XGVector3D(1.0f, 0.0f, 1.0f),
-            XGVector3D(0.0f, 0.0f, 1.0f),
-            XGVector3D(0.0f, 0.0f, 0.0f)
-        ),
-        XGTriangle(
-            XGVector3D(1.0f, 0.0f, 1.0f),
-            XGVector3D(0.0f, 0.0f, 0.0f),
-            XGVector3D(1.0f, 0.0f, 0.0f)
-        )
-    };
-
     // Create perspective projection matrix
     constexpr float NearClipPlane = 0.1f;
     constexpr float FarClipPlane = 1000.0f;
@@ -127,7 +138,7 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
     RotateAroundXAxis.Values[3][3] = 1.0f;
 
     // Draw triangles
-    for (const XGTriangle& Triangle : MeshCube.Triangles)
+    for (const XGTriangle& Triangle : MeshToRender.Triangles)
     {
         // Rotate the triangle around the Z axis
         XGTriangle TriangleRotatedAroundZ;
@@ -144,9 +155,9 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
         XGTriangle TranslatedTriangle = TriangleRotatedAroundX;
 
         // Translate the triangle along the Z axis so we can see it
-        TranslatedTriangle.Points[0].Z = TriangleRotatedAroundX.Points[0].Z + 3.0f;
-        TranslatedTriangle.Points[1].Z = TriangleRotatedAroundX.Points[1].Z + 3.0f;
-        TranslatedTriangle.Points[2].Z = TriangleRotatedAroundX.Points[2].Z + 3.0f;
+        TranslatedTriangle.Points[0].Z = TriangleRotatedAroundX.Points[0].Z + 8.0f;
+        TranslatedTriangle.Points[1].Z = TriangleRotatedAroundX.Points[1].Z + 8.0f;
+        TranslatedTriangle.Points[2].Z = TriangleRotatedAroundX.Points[2].Z + 8.0f;
 
         // Calculate the triangle's normal
         

@@ -13,17 +13,18 @@
 class XGEngine : public olc::PixelGameEngine
 {
 public:
-    XGEngine() {}
+    XGEngine() : XGEngine("") {}
+    XGEngine(const std::string& MeshFilePath);
 
     bool OnUserCreate() override;
     bool OnUserUpdate(float fElapsedTime) override;
 
 private:
     /**
-     * \brief Unit cube at origin
+     * \brief The mesh that will be rendered
      */
-    XGMesh MeshCube;
-
+    XGMesh MeshToRender;
+ 
     /**
      * \brief Perspective projection matrix
      */
@@ -43,7 +44,7 @@ private:
     /**
      * \brief The amount of rotation we want to apply to the cube this frame
      */
-    float CubeRotationAngle;
+    float CubeRotationAngle = 0.0f;
 
     /**
      * \brief Create a grayscale color
