@@ -1,0 +1,6 @@
+# .gitignore for XGraph
+# Copyright (C) 2024 Travis Blankenship
+
+.idea/
+XGraph.sln.DotSettings.user
+**/x64/*
