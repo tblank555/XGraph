@@ -154,9 +154,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\XGEngine.h" />
+    <ClInclude Include="Source\XGMatrix4x4.h" />
+    <ClInclude Include="Source\XGMesh.h" />
+    <ClInclude Include="Source\XGTriangle.h" />
+    <ClInclude Include="Source\XGVector3D.h" />
     <ClInclude Include="ThirdParty\olcPixelGameEngine.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\XGEngine.cpp" />
     <ClCompile Include="Source\XGraph.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -230,6 +236,8 @@
       <SDLCheck>true</SDLCheck>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
+    <ClCompile Include="Source\XGVector3D.cpp" />
+    <ClCompile Include="ThirdParty\olcPixelGameEngine.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
