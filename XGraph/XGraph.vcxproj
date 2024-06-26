@@ -237,6 +237,7 @@
       <SDLCheck>true</SDLCheck>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
+    <ClCompile Include="Source\XGTriangle.cpp" />
     <ClCompile Include="Source\XGVector3D.cpp" />
     <ClCompile Include="ThirdParty\olcPixelGameEngine.cpp" />
   </ItemGroup>

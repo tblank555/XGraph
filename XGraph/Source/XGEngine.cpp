@@ -161,37 +161,13 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
         TranslatedTriangle.Points[0].Z = TriangleRotatedAroundX.Points[0].Z + 8.0f;
         TranslatedTriangle.Points[1].Z = TriangleRotatedAroundX.Points[1].Z + 8.0f;
         TranslatedTriangle.Points[2].Z = TriangleRotatedAroundX.Points[2].Z + 8.0f;
-
-        // Calculate the triangle's normal
         
-        const XGVector3D Side1 = XGVector3D(
-            TranslatedTriangle.Points[1].X - TranslatedTriangle.Points[0].X,
-            TranslatedTriangle.Points[1].Y - TranslatedTriangle.Points[0].Y,
-            TranslatedTriangle.Points[1].Z - TranslatedTriangle.Points[0].Z
-        );
-
-        const XGVector3D Side2 = XGVector3D(
-            TranslatedTriangle.Points[2].X - TranslatedTriangle.Points[0].X,
-            TranslatedTriangle.Points[2].Y - TranslatedTriangle.Points[0].Y,
-            TranslatedTriangle.Points[2].Z - TranslatedTriangle.Points[0].Z
-        );
-
-        XGVector3D Normal = XGVector3D(
-            Side1.Y * Side2.Z - Side1.Z * Side2.Y,
-            Side1.Z * Side2.X - Side1.X * Side2.Z,
-            Side1.X * Side2.Y - Side1.Y * Side2.X
-        );
-
-        Normal.Normalize();
+        XGVector3D Normal = TranslatedTriangle.GetNormal();
 
         // Find the vector from the camera to the triangle
         // We can use any point on the triangle, because we're using this for the dot product with the normal,
         // and the normal will be the same a any point on the triangle
-        const XGVector3D CameraToTriangle = XGVector3D(
-            TranslatedTriangle.Points[0].X - CameraPosition.X,
-            TranslatedTriangle.Points[0].Y - CameraPosition.Y,
-            TranslatedTriangle.Points[0].Z - CameraPosition.Z
-        );
+        const XGVector3D CameraToTriangle = TranslatedTriangle.Points[0] - CameraPosition;
 
         const float DotProduct = CameraToTriangle.DotProduct(Normal);
 

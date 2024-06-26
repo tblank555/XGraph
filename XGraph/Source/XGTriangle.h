@@ -18,4 +18,6 @@ struct XGTriangle
     
     XGTriangle(const XGVector3D& Point1, const XGVector3D& Point2, const XGVector3D& Point3)
         : Points{ Point1, Point2, Point3 }, Color(olc::WHITE) {}
+
+    XGVector3D GetNormal() const;
 };

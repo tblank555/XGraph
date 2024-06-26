@@ -8,17 +8,51 @@
 #include <cmath>
 #include "XGMatrix4x4.h"
 
+XGVector3D XGVector3D::operator+(const XGVector3D& OtherVector) const
+{
+    return { X + OtherVector.X, Y + OtherVector.Y, Z + OtherVector.Z };
+}
+
+XGVector3D XGVector3D::operator-(const XGVector3D& OtherVector) const
+{
+    return { X - OtherVector.X, Y - OtherVector.Y, Z - OtherVector.Z };
+}
+
+XGVector3D XGVector3D::operator*(const float& Scale) const
+{
+    return { X * Scale, Y * Scale, Z * Scale };
+}
+
+XGVector3D XGVector3D::operator/(const float& Scale) const
+{
+    return { X / Scale, Y / Scale, Z / Scale };
+}
+
 void XGVector3D::Normalize()
 {
-    const float Length = sqrtf(X * X + Y * Y + Z * Z);
+    const float Length = GetLength();
     X /= Length;
     Y /= Length;
     Z /= Length;
 }
 
+float XGVector3D::GetLength() const
+{
+    return sqrtf(X * X + Y * Y + Z * Z);
+}
+
 float XGVector3D::DotProduct(const XGVector3D& OtherVector) const
 {
     return X * OtherVector.X + Y * OtherVector.Y + Z * OtherVector.Z;
+}
+
+XGVector3D XGVector3D::CrossProduct(const XGVector3D& OtherVector) const
+{
+    return {
+        Y * OtherVector.Z - Z * OtherVector.Y,
+        Z * OtherVector.X - X * OtherVector.Z,
+        X * OtherVector.Y - Y * OtherVector.X
+    };
 }
 
 void XGVector3D::MultiplyByMatrix(const XGMatrix4x4& Matrix, XGVector3D& Result) const

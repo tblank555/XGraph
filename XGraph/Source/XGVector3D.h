@@ -14,9 +14,17 @@ struct XGVector3D
     XGVector3D() : X(0.0f), Y(0.0f), Z(0.0f) {}
     XGVector3D(const float& X, const float& Y, const float& Z) : X(X), Y(Y), Z(Z) {}
 
+    XGVector3D operator+(const XGVector3D& OtherVector) const;
+    XGVector3D operator-(const XGVector3D& OtherVector) const;
+    XGVector3D operator*(const float& Scale) const;
+    XGVector3D operator/(const float& Scale) const;
+
     void Normalize();
 
+    float GetLength() const;
+
     float DotProduct(const XGVector3D& OtherVector) const;
+    XGVector3D CrossProduct(const XGVector3D& OtherVector) const;
 
     void MultiplyByMatrix(const XGMatrix4x4& Matrix, XGVector3D& Result) const;
 };
