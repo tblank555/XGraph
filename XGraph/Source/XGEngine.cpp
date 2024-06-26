@@ -5,6 +5,7 @@
 
 #include "XGEngine.h"
 
+#include <algorithm>
 #include "XGTriangle.h"
 
 XGEngine::XGEngine(const std::string& MeshFilePath)
@@ -137,7 +138,9 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
     RotateAroundXAxis.Values[2][2] = cosf(XRotation);
     RotateAroundXAxis.Values[3][3] = 1.0f;
 
-    // Draw triangles
+    std::vector<XGTriangle> TrianglesToDraw;
+
+    // Transform and project triangles
     for (const XGTriangle& Triangle : MeshToRender.Triangles)
     {
         // Rotate the triangle around the Z axis
@@ -226,14 +229,30 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
         ProjectedTriangle.Points[2].X *= 0.5f * static_cast<float>(ScreenWidth());
         ProjectedTriangle.Points[2].Y *= 0.5f * static_cast<float>(ScreenHeight());
 
+        TrianglesToDraw.push_back(ProjectedTriangle);
+    }
+
+    // Sort triangles from farthest away from the camera to closest
+    std::sort(TrianglesToDraw.begin(), TrianglesToDraw.end(), [](const XGTriangle& Triangle1, const XGTriangle& Triangle2)
+    {
+        // Get the midpoint in the Z axis of the triangles
+        const float Depth1 = (Triangle1.Points[0].Z + Triangle1.Points[1].Z + Triangle1.Points[2].Z) / 3.0f;
+        const float Depth2 = (Triangle2.Points[0].Z + Triangle2.Points[1].Z + Triangle2.Points[2].Z) / 3.0f;
+
+        return Depth1 > Depth2;
+    });
+
+    // Rasterize the triangles
+    for (const XGTriangle& Triangle : TrianglesToDraw)
+    {
         FillTriangle(
-            static_cast<int32_t>(ProjectedTriangle.Points[0].X),
-            static_cast<int32_t>(ProjectedTriangle.Points[0].Y),
-            static_cast<int32_t>(ProjectedTriangle.Points[1].X),
-            static_cast<int32_t>(ProjectedTriangle.Points[1].Y),
-            static_cast<int32_t>(ProjectedTriangle.Points[2].X),
-            static_cast<int32_t>(ProjectedTriangle.Points[2].Y),
-            ProjectedTriangle.Color
+            static_cast<int32_t>(Triangle.Points[0].X),
+            static_cast<int32_t>(Triangle.Points[0].Y),
+            static_cast<int32_t>(Triangle.Points[1].X),
+            static_cast<int32_t>(Triangle.Points[1].Y),
+            static_cast<int32_t>(Triangle.Points[2].X),
+            static_cast<int32_t>(Triangle.Points[2].Y),
+            Triangle.Color
         );
     }
     
