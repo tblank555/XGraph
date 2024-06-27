@@ -24,7 +24,7 @@ private:
      * \brief The mesh that will be rendered
      */
     XGMesh MeshToRender;
- 
+
     /**
      * \brief Perspective projection matrix
      */
@@ -42,17 +42,14 @@ private:
     XGVector3D LightDirection;
 
     /**
-     * \brief The amount of rotation we want to apply to the cube this frame
+     * \brief The amount of rotation to apply to the mesh this frame
      */
-    float CubeRotationAngle = 0.0f;
+    float RotationAngle = 0.0f;
 
     /**
      * \brief Create a grayscale color
-     * \param Brightness A value from 0 to 1 that indicates how bright the color should be. 0 = black, 1 = white
+     * \param Brightness A value from 0 to 1 that indicates how bright the color should be. 0 = black, 1 = white.
      * \return The color
      */
-    static olc::Pixel CreateGrayscaleColor(const float& Brightness)
-    {
-        return olc::PixelF(Brightness, Brightness, Brightness, 1.0f);
-    }
+    static olc::Pixel CreateGrayscaleColor(const float& Brightness);
 };

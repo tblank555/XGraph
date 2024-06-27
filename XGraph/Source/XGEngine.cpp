@@ -95,14 +95,13 @@ bool XGEngine::OnUserCreate()
     constexpr float FarClipPlane = 1000.0f;
     constexpr float FieldOfViewDegrees = 90.0f;
     const float AspectRatio = static_cast<float>(ScreenHeight()) / static_cast<float>(ScreenWidth());
-    const float InverseTanHalfFovRadians = 1.0f / tanf(FieldOfViewDegrees / 2.0f * 3.14159f / 180.0f);
 
-    ProjectionMatrix.Values[0][0] = AspectRatio * InverseTanHalfFovRadians;
-    ProjectionMatrix.Values[1][1] = InverseTanHalfFovRadians;
-    ProjectionMatrix.Values[2][2] = FarClipPlane / (FarClipPlane - NearClipPlane);
-    ProjectionMatrix.Values[3][2] = (-FarClipPlane * NearClipPlane) / (FarClipPlane - NearClipPlane);
-    ProjectionMatrix.Values[2][3] = 1.0f;
-    ProjectionMatrix.Values[3][3] = 0.0f;
+    ProjectionMatrix = XGMatrix4x4::PerspectiveProjection(
+        FieldOfViewDegrees,
+        AspectRatio,
+        NearClipPlane,
+        FarClipPlane
+    );
 
     // Set and normalize the global directional light
     LightDirection = XGVector3D(0.0f, 0.0f, -1.0f);
@@ -116,51 +115,24 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
     // Clear screen to black
     FillRect(0, 0, ScreenWidth(), ScreenHeight(), olc::BLACK);
 
-    // Rotate cube
-    XGMatrix4x4 RotateAroundXAxis;
-    XGMatrix4x4 RotateAroundZAxis;
-    CubeRotationAngle += 1.0f * fElapsedTime;
+    RotationAngle += 1.0f * fElapsedTime;
+    const XGMatrix4x4 RotateAroundZAxis = XGMatrix4x4::RotationZ(RotationAngle);
+    const XGMatrix4x4 RotateAroundXAxis = XGMatrix4x4::RotationX(RotationAngle * 0.5f);
 
-    // Define Z-axis rotation
-    RotateAroundZAxis.Values[0][0] = cosf(CubeRotationAngle);
-    RotateAroundZAxis.Values[0][1] = sinf(CubeRotationAngle);
-    RotateAroundZAxis.Values[1][0] = -sinf(CubeRotationAngle);
-    RotateAroundZAxis.Values[1][1] = cosf(CubeRotationAngle);
-    RotateAroundZAxis.Values[2][2] = 1.0f;
-    RotateAroundZAxis.Values[3][3] = 1.0f;
+    const XGMatrix4x4 TranslateAlongZAxis = XGMatrix4x4::Translation({ 0.0f, 0.0f, 8.0f });
 
-    // Define X-axis rotation (rotate at half the speed of the Z axis)
-    const float XRotation = CubeRotationAngle * 0.5f;
-    RotateAroundXAxis.Values[0][0] = 1.0f;
-    RotateAroundXAxis.Values[1][1] = cosf(XRotation);
-    RotateAroundXAxis.Values[1][2] = sinf(XRotation);
-    RotateAroundXAxis.Values[2][1] = -sinf(XRotation);
-    RotateAroundXAxis.Values[2][2] = cosf(XRotation);
-    RotateAroundXAxis.Values[3][3] = 1.0f;
+    const XGMatrix4x4 WorldMatrix = RotateAroundZAxis * RotateAroundXAxis * TranslateAlongZAxis;
 
     std::vector<XGTriangle> TrianglesToDraw;
 
     // Transform and project triangles
     for (const XGTriangle& Triangle : MeshToRender.Triangles)
     {
-        // Rotate the triangle around the Z axis
-        XGTriangle TriangleRotatedAroundZ;
-        Triangle.Points[0].MultiplyByMatrix(RotateAroundZAxis, TriangleRotatedAroundZ.Points[0]);
-        Triangle.Points[1].MultiplyByMatrix(RotateAroundZAxis, TriangleRotatedAroundZ.Points[1]);
-        Triangle.Points[2].MultiplyByMatrix(RotateAroundZAxis, TriangleRotatedAroundZ.Points[2]);
-
-        // Rotate the triangle around the X axis
-        XGTriangle TriangleRotatedAroundX;
-        TriangleRotatedAroundZ.Points[0].MultiplyByMatrix(RotateAroundXAxis, TriangleRotatedAroundX.Points[0]);
-        TriangleRotatedAroundZ.Points[1].MultiplyByMatrix(RotateAroundXAxis, TriangleRotatedAroundX.Points[1]);
-        TriangleRotatedAroundZ.Points[2].MultiplyByMatrix(RotateAroundXAxis, TriangleRotatedAroundX.Points[2]);
-        
-        XGTriangle TranslatedTriangle = TriangleRotatedAroundX;
-
-        // Translate the triangle along the Z axis so we can see it
-        TranslatedTriangle.Points[0].Z = TriangleRotatedAroundX.Points[0].Z + 8.0f;
-        TranslatedTriangle.Points[1].Z = TriangleRotatedAroundX.Points[1].Z + 8.0f;
-        TranslatedTriangle.Points[2].Z = TriangleRotatedAroundX.Points[2].Z + 8.0f;
+        XGTriangle TranslatedTriangle = {
+            WorldMatrix * Triangle.Points[0],
+            WorldMatrix * Triangle.Points[1],
+            WorldMatrix * Triangle.Points[2],
+        };
         
         XGVector3D Normal = TranslatedTriangle.GetNormal();
 
@@ -233,4 +205,9 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
     }
     
     return true;
+}
+
+olc::Pixel XGEngine::CreateGrayscaleColor(const float& Brightness)
+{
+    return olc::PixelF(Brightness, Brightness, Brightness, 1.0f);
 }
