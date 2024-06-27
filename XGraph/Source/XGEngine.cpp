@@ -97,7 +97,7 @@ bool XGEngine::OnUserCreate()
     const float AspectRatio = static_cast<float>(ScreenHeight()) / static_cast<float>(ScreenWidth());
     const float InverseTanHalfFovRadians = 1.0f / tanf(FieldOfViewDegrees / 2.0f * 3.14159f / 180.0f);
 
-    ProjectionMatrix.Values[0][0] = AspectRatio / InverseTanHalfFovRadians;
+    ProjectionMatrix.Values[0][0] = AspectRatio * InverseTanHalfFovRadians;
     ProjectionMatrix.Values[1][1] = InverseTanHalfFovRadians;
     ProjectionMatrix.Values[2][2] = FarClipPlane / (FarClipPlane - NearClipPlane);
     ProjectionMatrix.Values[3][2] = (-FarClipPlane * NearClipPlane) / (FarClipPlane - NearClipPlane);

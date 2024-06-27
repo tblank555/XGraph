@@ -57,9 +57,9 @@ XGVector3D XGVector3D::CrossProduct(const XGVector3D& OtherVector) const
 
 void XGVector3D::MultiplyByMatrix(const XGMatrix4x4& Matrix, XGVector3D& Result) const
 {
-    Result.X = X * Matrix.Values[0][0] +  Y * Matrix.Values[1][0] + Z * Matrix.Values[2][0] + Matrix.Values[3][0];
-    Result.Y = X * Matrix.Values[0][1] +  Y * Matrix.Values[1][1] + Z * Matrix.Values[2][1] + Matrix.Values[3][1];
-    Result.Z = X * Matrix.Values[0][2] +  Y * Matrix.Values[1][2] + Z * Matrix.Values[2][2] + Matrix.Values[3][2];
+    Result.X = X * Matrix.Values[0][0] + Y * Matrix.Values[1][0] + Z * Matrix.Values[2][0] + Matrix.Values[3][0];
+    Result.Y = X * Matrix.Values[0][1] + Y * Matrix.Values[1][1] + Z * Matrix.Values[2][1] + Matrix.Values[3][1];
+    Result.Z = X * Matrix.Values[0][2] + Y * Matrix.Values[1][2] + Z * Matrix.Values[2][2] + Matrix.Values[3][2];
 
     const float W = X * Matrix.Values[0][3] +  Y * Matrix.Values[1][3] + Z * Matrix.Values[2][3] + Matrix.Values[3][3];
 

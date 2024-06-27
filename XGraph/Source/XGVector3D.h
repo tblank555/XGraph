@@ -9,10 +9,14 @@ struct XGMatrix4x4;
 
 struct XGVector3D
 {
-    float X, Y, Z;
+    float X = 0.0f;
+    float Y = 0.0f;
+    float Z = 0.0f;
 
-    XGVector3D() : X(0.0f), Y(0.0f), Z(0.0f) {}
-    XGVector3D(const float& X, const float& Y, const float& Z) : X(X), Y(Y), Z(Z) {}
+    float W = 1.0f; // Necessary for multiplication with 4x4 matrices
+
+    XGVector3D() = default;
+    XGVector3D(const float& X, const float& Y, const float& Z, const float&W = 1.0f) : X(X), Y(Y), Z(Z), W(W) {}
 
     XGVector3D operator+(const XGVector3D& OtherVector) const;
     XGVector3D operator-(const XGVector3D& OtherVector) const;
