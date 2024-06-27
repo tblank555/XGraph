@@ -243,6 +243,7 @@
     <ClCompile Include="ThirdParty\olcPixelGameEngine.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Resources\Axes.obj" />
     <Content Include="Resources\Spaceship.obj" />
     <Content Include="Resources\Teapot.obj" />
   </ItemGroup>

@@ -37,6 +37,12 @@ private:
     XGVector3D CameraPosition;
 
     /**
+     * \brief A unit vector that describes the direction the camera is looking
+     * \details Z is the forward vector
+     */
+    XGVector3D CameraLookDirection = { 0.0f, 0.0f, 1.0f };
+
+    /**
      * \brief The direction of the global directional light
      */
     XGVector3D LightDirection;

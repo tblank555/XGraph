@@ -75,9 +75,41 @@ XGMatrix4x4 XGMatrix4x4::PerspectiveProjection(
     Projection.Values[0][0] = AspectRatio * InverseTanHalfFovRadians;
     Projection.Values[1][1] = InverseTanHalfFovRadians;
     Projection.Values[2][2] = FarClipPlaneDistance / (FarClipPlaneDistance - NearClipPlaneDistance);
+    Projection.Values[2][3] = -1.0f;
     Projection.Values[3][2] = (-FarClipPlaneDistance * NearClipPlaneDistance) / (FarClipPlaneDistance - NearClipPlaneDistance);
-    Projection.Values[2][3] = 1.0f;
+    
     return Projection;
+}
+
+XGMatrix4x4 XGMatrix4x4::PointAt(const XGVector3D& Position, const XGVector3D& Target, const XGVector3D& Up)
+{
+    XGVector3D NewForward = Target - Position;
+    NewForward.Normalize();
+
+    const float ForwardComponentOfUp = Up.DotProduct(NewForward);
+    const XGVector3D UpOffset = NewForward * ForwardComponentOfUp;
+    XGVector3D NewUp = Up - UpOffset;
+    NewUp.Normalize();
+
+    const XGVector3D NewRight = NewUp.CrossProduct(NewForward);
+
+    // Create transformation matrix
+    XGMatrix4x4 PointAt;
+    PointAt.Values[0][0] = NewRight.X;
+    PointAt.Values[0][1] = NewRight.Y;
+    PointAt.Values[0][2] = NewRight.Z;
+    PointAt.Values[1][0] = NewUp.X;
+    PointAt.Values[1][1] = NewUp.Y;
+    PointAt.Values[1][2] = NewUp.Z;
+    PointAt.Values[2][0] = NewForward.X;
+    PointAt.Values[2][1] = NewForward.Y;
+    PointAt.Values[2][2] = NewForward.Z;
+    PointAt.Values[3][0] = Position.X;
+    PointAt.Values[3][1] = Position.Y;
+    PointAt.Values[3][2] = Position.Z;
+    PointAt.Values[3][3] = 1.0f;
+
+    return PointAt;
 }
 
 XGMatrix4x4 XGMatrix4x4::operator*(const XGMatrix4x4& OtherMatrix) const
@@ -106,4 +138,24 @@ XGVector3D XGMatrix4x4::operator*(const XGVector3D& Vector) const
         Vector.X * Values[0][2] + Vector.Y * Values[1][2] + Vector.Z * Values[2][2] + Vector.W * Values[3][2],
         Vector.X * Values[0][3] + Vector.Y * Values[1][3] + Vector.Z * Values[2][3] + Vector.W * Values[3][3]
     };
+}
+
+void XGMatrix4x4::InvertQuick()
+{
+    Values[0][0] = Values[0][0];
+    Values[0][1] = Values[1][0];
+    Values[0][2] = Values[2][0];
+    Values[0][3] = 0.0f;
+    Values[1][0] = Values[0][1];
+    Values[1][1] = Values[1][1];
+    Values[1][2] = Values[2][1];
+    Values[1][3] = 0.0f;
+    Values[2][0] = Values[0][2];
+    Values[2][1] = Values[1][2];
+    Values[2][2] = Values[2][2];
+    Values[2][3] = 0.0f;
+    Values[3][0] = -(Values[3][0] * Values[0][0] + Values[3][1] * Values[1][0] + Values[3][2] * Values[2][0]);
+    Values[3][1] = -(Values[3][0] * Values[0][1] + Values[3][1] * Values[1][1] + Values[3][2] * Values[2][1]);
+    Values[3][2] = -(Values[3][0] * Values[0][2] + Values[3][1] * Values[1][2] + Values[3][2] * Values[2][2]);
+    Values[3][3] = 1.0f;
 }

@@ -23,7 +23,7 @@
 
 int main(int ArgC, char* ArgV[])
 {
-    XGEngine Demo("Resources/Teapot.obj");
+    XGEngine Demo("Resources/Axes.obj");
     if (!Demo.Construct(1920, 1080, 1, 1))
     {
         // TODO: Log error here

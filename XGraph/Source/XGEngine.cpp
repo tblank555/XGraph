@@ -115,13 +115,30 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
     // Clear screen to black
     FillRect(0, 0, ScreenWidth(), ScreenHeight(), olc::BLACK);
 
-    RotationAngle += 1.0f * fElapsedTime;
+    if (GetKey(olc::UP).bHeld)
+    {
+        CameraPosition.Y += 8.0f * fElapsedTime;
+    }
+
+    if (GetKey(olc::DOWN).bHeld)
+    {
+        CameraPosition.Y -= 8.0f * fElapsedTime;
+    }
+
+    // Uncomment to enable rotation
+    // RotationAngle += 1.0f * fElapsedTime;
     const XGMatrix4x4 RotateAroundZAxis = XGMatrix4x4::RotationZ(RotationAngle);
     const XGMatrix4x4 RotateAroundXAxis = XGMatrix4x4::RotationX(RotationAngle * 0.5f);
 
     const XGMatrix4x4 TranslateAlongZAxis = XGMatrix4x4::Translation({ 0.0f, 0.0f, 8.0f });
 
     const XGMatrix4x4 WorldMatrix = RotateAroundZAxis * RotateAroundXAxis * TranslateAlongZAxis;
+    
+    const XGVector3D CameraUp = { 0.0f, 1.0f, 0.0f };
+    const XGVector3D CameraTarget = CameraPosition + CameraLookDirection;
+
+    XGMatrix4x4 ViewMatrix = XGMatrix4x4::PointAt(CameraPosition, CameraTarget, CameraUp);
+    ViewMatrix.InvertQuick();
 
     std::vector<XGTriangle> TrianglesToDraw;
 
@@ -152,13 +169,20 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
 
         const float Luminance = LightDirection.DotProduct(Normal);
         TransformedTriangle.Color = CreateGrayscaleColor(Luminance);
+
+        // Project the triangle from world space to view space
+        const XGTriangle ViewedTriangle = {
+            ViewMatrix * TransformedTriangle.Points[0],
+            ViewMatrix * TransformedTriangle.Points[1],
+            ViewMatrix * TransformedTriangle.Points[2],
+        };
         
         // Project the triangle from world space to an intermediate screen space
         XGTriangle ProjectedTriangle;
-        TransformedTriangle.Points[0].MultiplyByMatrix(ProjectionMatrix, ProjectedTriangle.Points[0]);
-        TransformedTriangle.Points[1].MultiplyByMatrix(ProjectionMatrix, ProjectedTriangle.Points[1]);
-        TransformedTriangle.Points[2].MultiplyByMatrix(ProjectionMatrix, ProjectedTriangle.Points[2]);
-        ProjectedTriangle.Color = TransformedTriangle.Color;
+        ViewedTriangle.Points[0].MultiplyByMatrix(ProjectionMatrix, ProjectedTriangle.Points[0]);
+        ViewedTriangle.Points[1].MultiplyByMatrix(ProjectionMatrix, ProjectedTriangle.Points[1]);
+        ViewedTriangle.Points[2].MultiplyByMatrix(ProjectionMatrix, ProjectedTriangle.Points[2]);
+        ProjectedTriangle.Color = ViewedTriangle.Color;
 
         // Scale triangle into view
         // Shift unit cube from -1 to 1 coordinates to 0 to 2
