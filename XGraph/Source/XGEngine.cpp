@@ -128,18 +128,18 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
     // Transform and project triangles
     for (const XGTriangle& Triangle : MeshToRender.Triangles)
     {
-        XGTriangle TranslatedTriangle = {
+        XGTriangle TransformedTriangle = {
             WorldMatrix * Triangle.Points[0],
             WorldMatrix * Triangle.Points[1],
             WorldMatrix * Triangle.Points[2],
         };
         
-        XGVector3D Normal = TranslatedTriangle.GetNormal();
+        XGVector3D Normal = TransformedTriangle.GetNormal();
 
         // Find the vector from the camera to the triangle
         // We can use any point on the triangle, because we're using this for the dot product with the normal,
         // and the normal will be the same a any point on the triangle
-        const XGVector3D CameraToTriangle = TranslatedTriangle.Points[0] - CameraPosition;
+        const XGVector3D CameraToTriangle = TransformedTriangle.Points[0] - CameraPosition;
 
         const float DotProduct = CameraToTriangle.DotProduct(Normal);
 
@@ -151,23 +151,21 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
         }
 
         const float Luminance = LightDirection.DotProduct(Normal);
-        TranslatedTriangle.Color = CreateGrayscaleColor(Luminance);
+        TransformedTriangle.Color = CreateGrayscaleColor(Luminance);
         
         // Project the triangle from world space to an intermediate screen space
         XGTriangle ProjectedTriangle;
-        TranslatedTriangle.Points[0].MultiplyByMatrix(ProjectionMatrix, ProjectedTriangle.Points[0]);
-        TranslatedTriangle.Points[1].MultiplyByMatrix(ProjectionMatrix, ProjectedTriangle.Points[1]);
-        TranslatedTriangle.Points[2].MultiplyByMatrix(ProjectionMatrix, ProjectedTriangle.Points[2]);
-        ProjectedTriangle.Color = TranslatedTriangle.Color;
+        TransformedTriangle.Points[0].MultiplyByMatrix(ProjectionMatrix, ProjectedTriangle.Points[0]);
+        TransformedTriangle.Points[1].MultiplyByMatrix(ProjectionMatrix, ProjectedTriangle.Points[1]);
+        TransformedTriangle.Points[2].MultiplyByMatrix(ProjectionMatrix, ProjectedTriangle.Points[2]);
+        ProjectedTriangle.Color = TransformedTriangle.Color;
 
         // Scale triangle into view
         // Shift unit cube from -1 to 1 coordinates to 0 to 2
-        ProjectedTriangle.Points[0].X += 1.0f;
-        ProjectedTriangle.Points[0].Y += 1.0f;
-        ProjectedTriangle.Points[1].X += 1.0f;
-        ProjectedTriangle.Points[1].Y += 1.0f;
-        ProjectedTriangle.Points[2].X += 1.0f;
-        ProjectedTriangle.Points[2].Y += 1.0f;
+        const XGVector3D Offset = { 1.0f, 1.0f, 0.0f };
+        ProjectedTriangle.Points[0] += Offset;
+        ProjectedTriangle.Points[1] += Offset;
+        ProjectedTriangle.Points[2] += Offset;
 
         // Divide each point by half to get to 0 to 1 range, and multiply by screen height or width to scale it to our screen
         ProjectedTriangle.Points[0].X *= 0.5f * static_cast<float>(ScreenWidth());

@@ -13,9 +13,25 @@ XGVector3D XGVector3D::operator+(const XGVector3D& OtherVector) const
     return { X + OtherVector.X, Y + OtherVector.Y, Z + OtherVector.Z };
 }
 
+XGVector3D& XGVector3D::operator+=(const XGVector3D& OtherVector)
+{
+    X += OtherVector.X;
+    Y += OtherVector.Y;
+    Z += OtherVector.Z;
+    return *this;
+}
+
 XGVector3D XGVector3D::operator-(const XGVector3D& OtherVector) const
 {
     return { X - OtherVector.X, Y - OtherVector.Y, Z - OtherVector.Z };
+}
+
+XGVector3D& XGVector3D::operator-=(const XGVector3D& OtherVector)
+{
+    X -= OtherVector.X;
+    Y -= OtherVector.Y;
+    Z -= OtherVector.Z;
+    return *this;
 }
 
 XGVector3D XGVector3D::operator*(const float& Scale) const
@@ -23,9 +39,25 @@ XGVector3D XGVector3D::operator*(const float& Scale) const
     return { X * Scale, Y * Scale, Z * Scale };
 }
 
+XGVector3D& XGVector3D::operator*=(const float& Scale)
+{
+    X *= Scale;
+    Y *= Scale;
+    Z *= Scale;
+    return *this;
+}
+
 XGVector3D XGVector3D::operator/(const float& Scale) const
 {
     return { X / Scale, Y / Scale, Z / Scale };
+}
+
+XGVector3D& XGVector3D::operator/=(const float& Scale)
+{
+    X /= Scale;
+    Y /= Scale;
+    Z /= Scale;
+    return *this;
 }
 
 void XGVector3D::Normalize()

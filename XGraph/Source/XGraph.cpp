@@ -23,7 +23,7 @@
 
 int main(int ArgC, char* ArgV[])
 {
-    XGEngine Demo("Resources/Spaceship.obj");
+    XGEngine Demo("Resources/Teapot.obj");
     if (!Demo.Construct(1920, 1080, 1, 1))
     {
         // TODO: Log error here

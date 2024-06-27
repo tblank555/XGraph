@@ -19,9 +19,13 @@ struct XGVector3D
     XGVector3D(const float& X, const float& Y, const float& Z, const float&W = 1.0f) : X(X), Y(Y), Z(Z), W(W) {}
 
     XGVector3D operator+(const XGVector3D& OtherVector) const;
+    XGVector3D& operator+=(const XGVector3D& OtherVector);
     XGVector3D operator-(const XGVector3D& OtherVector) const;
+    XGVector3D& operator-=(const XGVector3D& OtherVector);
     XGVector3D operator*(const float& Scale) const;
+    XGVector3D& operator*=(const float& Scale);
     XGVector3D operator/(const float& Scale) const;
+    XGVector3D& operator/=(const float& Scale);
 
     void Normalize();
 
