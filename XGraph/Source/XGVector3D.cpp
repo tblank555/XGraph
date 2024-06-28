@@ -8,6 +8,19 @@
 #include <cmath>
 #include "XGMatrix4x4.h"
 
+XGVector3D XGVector3D::GetLineToIntersectionWithPlane(const XGVector3D& PointOnPlane, const XGVector3D& PlaneNormal,
+    const XGVector3D& LineStartPosition, const XGVector3D& LineEndPosition)
+{
+    const XGVector3D NormalizedPlaneNormal = PlaneNormal.GetNormalizedCopy();
+    const float PlaneDotProduct = NormalizedPlaneNormal.DotProduct(PointOnPlane);
+    const float LineStartDotProduct = LineStartPosition.DotProduct(NormalizedPlaneNormal);
+    const float LineEndDotProduct = LineEndPosition.DotProduct(NormalizedPlaneNormal);
+    const float IntersectionScale = (-PlaneDotProduct - LineStartDotProduct) / (LineEndDotProduct - LineStartDotProduct);
+    const XGVector3D LineStartToEnd = LineEndPosition - LineStartPosition;
+    const XGVector3D LineStartToIntersection = LineStartToEnd * IntersectionScale;
+    return LineStartPosition + LineStartToIntersection;
+}
+
 XGVector3D XGVector3D::operator+(const XGVector3D& OtherVector) const
 {
     return { X + OtherVector.X, Y + OtherVector.Y, Z + OtherVector.Z };
@@ -66,6 +79,17 @@ void XGVector3D::Normalize()
     X /= Length;
     Y /= Length;
     Z /= Length;
+}
+
+XGVector3D XGVector3D::GetNormalizedCopy() const
+{
+    XGVector3D Normalized;
+    const float Length = GetLength();
+    Normalized.X = X/Length;
+    Normalized.Y = Y/Length;
+    Normalized.Z = Z/Length;
+
+    return Normalized;
 }
 
 float XGVector3D::GetLength() const

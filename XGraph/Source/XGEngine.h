@@ -16,6 +16,18 @@ public:
     XGEngine() : XGEngine("") {}
     XGEngine(const std::string& MeshFilePath);
 
+    /**
+     * \brief The distance the near clip plane should be from the camera
+     */
+    float NearClipPlane = 2.1f;
+
+    /**
+     * \brief The direction of the global directional light
+     */
+    XGVector3D LightDirection;
+
+    bool ShouldDrawWireframe = false;
+
     bool OnUserCreate() override;
     bool OnUserUpdate(float fElapsedTime) override;
 
@@ -46,11 +58,6 @@ private:
      * \details Z is the forward vector
      */
     XGVector3D CameraLookDirection = { 0.0f, 0.0f, 1.0f };
-
-    /**
-     * \brief The direction of the global directional light
-     */
-    XGVector3D LightDirection;
 
     /**
      * \brief The amount of rotation to apply to the mesh this frame

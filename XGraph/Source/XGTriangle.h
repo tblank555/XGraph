@@ -20,4 +20,19 @@ struct XGTriangle
         : Points{ Point1, Point2, Point3 }, Color(olc::WHITE) {}
 
     XGVector3D GetNormal() const;
+
+    /**
+     * \brief Clips this triangle against the given plane
+     * \param PointOnPlane Any point on the plane
+     * \param PlaneNormal The normal of the plane
+     * \param OutTriangle1 If the return value is 1 or greater, this is the first new triangle created by clipping
+     * \param OutTriangle2 If the return value is 2, this is the second new triangle created by clipping
+     * \return The number of new triangles created by clipping. May be 0, 1, or 2.
+     */
+    int ClipAgainstPlane(
+        const XGVector3D& PointOnPlane,
+        const XGVector3D& PlaneNormal,
+        XGTriangle& OutTriangle1,
+        XGTriangle& OutTriangle2
+    ) const;
 };

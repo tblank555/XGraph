@@ -92,7 +92,6 @@ XGEngine::XGEngine(const std::string& MeshFilePath)
 bool XGEngine::OnUserCreate()
 {
     // Create perspective projection matrix
-    constexpr float NearClipPlane = 0.1f;
     constexpr float FarClipPlane = 1000.0f;
     constexpr float FieldOfViewDegrees = 90.0f;
     const float AspectRatio = static_cast<float>(ScreenHeight()) / static_cast<float>(ScreenWidth());
@@ -213,32 +212,46 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
             ViewMatrix * TransformedTriangle.Points[1],
             ViewMatrix * TransformedTriangle.Points[2],
         };
-        
-        // Project the triangle from view space to an intermediate screen space
-        XGTriangle ProjectedTriangle;
-        ViewedTriangle.Points[0].MultiplyByMatrix(ProjectionMatrix, ProjectedTriangle.Points[0]);
-        ViewedTriangle.Points[1].MultiplyByMatrix(ProjectionMatrix, ProjectedTriangle.Points[1]);
-        ViewedTriangle.Points[2].MultiplyByMatrix(ProjectionMatrix, ProjectedTriangle.Points[2]);
 
-        const float Luminance = LightDirection.DotProduct(Normal);
-        ProjectedTriangle.Color = CreateGrayscaleColor(Luminance);
+        // Clip the triangle in view space against the near clip plane
+        // In world space, the near clip plane will always have a normal pointing along the Z axis
+        int ClippedTriangleCount = -1;
+        XGTriangle ClippedTriangles[2];
+        ClippedTriangleCount = ViewedTriangle.ClipAgainstPlane(
+            { 0.0f, 0.0f, NearClipPlane },
+            { 0.0f, 0.0f, 1.0f },
+            ClippedTriangles[0],
+            ClippedTriangles[1]
+        );
 
-        // Scale triangle into view
-        // Shift unit cube from -1 to 1 coordinates to 0 to 2
-        const XGVector3D Offset = { 1.0f, 1.0f, 0.0f };
-        ProjectedTriangle.Points[0] += Offset;
-        ProjectedTriangle.Points[1] += Offset;
-        ProjectedTriangle.Points[2] += Offset;
+        for (int i = 0; i < ClippedTriangleCount; ++i)
+        {
+            // Project the triangle from view space to an intermediate screen space
+            XGTriangle ProjectedTriangle;
+            ClippedTriangles[i].Points[0].MultiplyByMatrix(ProjectionMatrix, ProjectedTriangle.Points[0]);
+            ClippedTriangles[i].Points[1].MultiplyByMatrix(ProjectionMatrix, ProjectedTriangle.Points[1]);
+            ClippedTriangles[i].Points[2].MultiplyByMatrix(ProjectionMatrix, ProjectedTriangle.Points[2]);
 
-        // Divide each point by half to get to 0 to 1 range, and multiply by screen height or width to scale it to our screen
-        ProjectedTriangle.Points[0].X *= 0.5f * static_cast<float>(ScreenWidth());
-        ProjectedTriangle.Points[0].Y *= 0.5f * static_cast<float>(ScreenHeight());
-        ProjectedTriangle.Points[1].X *= 0.5f * static_cast<float>(ScreenWidth());
-        ProjectedTriangle.Points[1].Y *= 0.5f * static_cast<float>(ScreenHeight());
-        ProjectedTriangle.Points[2].X *= 0.5f * static_cast<float>(ScreenWidth());
-        ProjectedTriangle.Points[2].Y *= 0.5f * static_cast<float>(ScreenHeight());
+            const float Luminance = LightDirection.DotProduct(Normal);
+            ProjectedTriangle.Color = CreateGrayscaleColor(Luminance);
 
-        TrianglesToDraw.push_back(ProjectedTriangle);
+            // Scale triangle into view
+            // Shift unit cube from -1 to 1 coordinates to 0 to 2
+            const XGVector3D Offset = { 1.0f, 1.0f, 0.0f };
+            ProjectedTriangle.Points[0] += Offset;
+            ProjectedTriangle.Points[1] += Offset;
+            ProjectedTriangle.Points[2] += Offset;
+
+            // Divide each point by half to get to 0 to 1 range, and multiply by screen height or width to scale it to our screen
+            ProjectedTriangle.Points[0].X *= 0.5f * static_cast<float>(ScreenWidth());
+            ProjectedTriangle.Points[0].Y *= 0.5f * static_cast<float>(ScreenHeight());
+            ProjectedTriangle.Points[1].X *= 0.5f * static_cast<float>(ScreenWidth());
+            ProjectedTriangle.Points[1].Y *= 0.5f * static_cast<float>(ScreenHeight());
+            ProjectedTriangle.Points[2].X *= 0.5f * static_cast<float>(ScreenWidth());
+            ProjectedTriangle.Points[2].Y *= 0.5f * static_cast<float>(ScreenHeight());
+
+            TrianglesToDraw.push_back(ProjectedTriangle);
+        }
     }
 
     // Sort triangles from farthest away from the camera to closest
@@ -263,6 +276,19 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
             static_cast<int32_t>(Triangle.Points[2].Y),
             Triangle.Color
         );
+
+        if (ShouldDrawWireframe)
+        {
+            DrawTriangle(
+                static_cast<int32_t>(Triangle.Points[0].X),
+                static_cast<int32_t>(Triangle.Points[0].Y),
+                static_cast<int32_t>(Triangle.Points[1].X),
+                static_cast<int32_t>(Triangle.Points[1].Y),
+                static_cast<int32_t>(Triangle.Points[2].X),
+                static_cast<int32_t>(Triangle.Points[2].Y),
+                olc::BLUE
+            );
+        }
     }
     
     return true;

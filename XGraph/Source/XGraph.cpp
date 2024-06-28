@@ -30,6 +30,8 @@ int main(int ArgC, char* ArgV[])
         return 1;
     }
 
+    Demo.ShouldDrawWireframe = true;
+
     Demo.Start();
     
     return 0;
