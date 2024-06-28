@@ -115,6 +115,8 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
     // Clear screen to black
     FillRect(0, 0, ScreenWidth(), ScreenHeight(), olc::BLACK);
 
+    // Process keyboard input
+    
     if (GetKey(olc::UP).bHeld)
     {
         CameraPosition.Y += 8.0f * fElapsedTime;
@@ -125,8 +127,18 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
         CameraPosition.Y -= 8.0f * fElapsedTime;
     }
 
+    if (GetKey(olc::LEFT).bHeld)
+    {
+        CameraPosition.X -= 8.0f * fElapsedTime;
+    }
+
+    if (GetKey(olc::RIGHT).bHeld)
+    {
+        CameraPosition.X += 8.0f * fElapsedTime;
+    }
+
     // Uncomment to enable rotation
-    // RotationAngle += 1.0f * fElapsedTime;
+    //RotationAngle += 1.0f * fElapsedTime;
     const XGMatrix4x4 RotateAroundZAxis = XGMatrix4x4::RotationZ(RotationAngle);
     const XGMatrix4x4 RotateAroundXAxis = XGMatrix4x4::RotationX(RotationAngle * 0.5f);
 
@@ -167,9 +179,6 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
             continue;
         }
 
-        const float Luminance = LightDirection.DotProduct(Normal);
-        TransformedTriangle.Color = CreateGrayscaleColor(Luminance);
-
         // Project the triangle from world space to view space
         const XGTriangle ViewedTriangle = {
             ViewMatrix * TransformedTriangle.Points[0],
@@ -177,12 +186,14 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
             ViewMatrix * TransformedTriangle.Points[2],
         };
         
-        // Project the triangle from world space to an intermediate screen space
+        // Project the triangle from view space to an intermediate screen space
         XGTriangle ProjectedTriangle;
         ViewedTriangle.Points[0].MultiplyByMatrix(ProjectionMatrix, ProjectedTriangle.Points[0]);
         ViewedTriangle.Points[1].MultiplyByMatrix(ProjectionMatrix, ProjectedTriangle.Points[1]);
         ViewedTriangle.Points[2].MultiplyByMatrix(ProjectionMatrix, ProjectedTriangle.Points[2]);
-        ProjectedTriangle.Color = ViewedTriangle.Color;
+
+        const float Luminance = LightDirection.DotProduct(Normal);
+        ProjectedTriangle.Color = CreateGrayscaleColor(Luminance);
 
         // Scale triangle into view
         // Shift unit cube from -1 to 1 coordinates to 0 to 2
@@ -209,7 +220,7 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
         const float Depth1 = (Triangle1.Points[0].Z + Triangle1.Points[1].Z + Triangle1.Points[2].Z) / 3.0f;
         const float Depth2 = (Triangle2.Points[0].Z + Triangle2.Points[1].Z + Triangle2.Points[2].Z) / 3.0f;
 
-        return Depth1 > Depth2;
+        return Depth1 < Depth2;
     });
 
     // Rasterize the triangles
