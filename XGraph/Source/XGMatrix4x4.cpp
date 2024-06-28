@@ -140,22 +140,25 @@ XGVector3D XGMatrix4x4::operator*(const XGVector3D& Vector) const
     };
 }
 
-void XGMatrix4x4::InvertQuick()
+XGMatrix4x4 XGMatrix4x4::QuickInverse() const
 {
-    Values[0][0] = Values[0][0];
-    Values[0][1] = Values[1][0];
-    Values[0][2] = Values[2][0];
-    Values[0][3] = 0.0f;
-    Values[1][0] = Values[0][1];
-    Values[1][1] = Values[1][1];
-    Values[1][2] = Values[2][1];
-    Values[1][3] = 0.0f;
-    Values[2][0] = Values[0][2];
-    Values[2][1] = Values[1][2];
-    Values[2][2] = Values[2][2];
-    Values[2][3] = 0.0f;
-    Values[3][0] = -(Values[3][0] * Values[0][0] + Values[3][1] * Values[1][0] + Values[3][2] * Values[2][0]);
-    Values[3][1] = -(Values[3][0] * Values[0][1] + Values[3][1] * Values[1][1] + Values[3][2] * Values[2][1]);
-    Values[3][2] = -(Values[3][0] * Values[0][2] + Values[3][1] * Values[1][2] + Values[3][2] * Values[2][2]);
-    Values[3][3] = 1.0f;
+    XGMatrix4x4 Inverted;
+    Inverted.Values[0][0] = Values[0][0];
+    Inverted.Values[0][1] = Values[1][0];
+    Inverted.Values[0][2] = Values[2][0];
+    Inverted.Values[0][3] = 0.0f;
+    Inverted.Values[1][0] = Values[0][1];
+    Inverted.Values[1][1] = Values[1][1];
+    Inverted.Values[1][2] = Values[2][1];
+    Inverted.Values[1][3] = 0.0f;
+    Inverted.Values[2][0] = Values[0][2];
+    Inverted.Values[2][1] = Values[1][2];
+    Inverted.Values[2][2] = Values[2][2];
+    Inverted.Values[2][3] = 0.0f;
+    Inverted.Values[3][0] = -(Values[3][0] * Inverted.Values[0][0] + Values[3][1] * Inverted.Values[1][0] + Values[3][2] * Inverted.Values[2][0]);
+    Inverted.Values[3][1] = -(Values[3][0] * Inverted.Values[0][1] + Values[3][1] * Inverted.Values[1][1] + Values[3][2] * Inverted.Values[2][1]);
+    Inverted.Values[3][2] = -(Values[3][0] * Inverted.Values[0][2] + Values[3][1] * Inverted.Values[1][2] + Values[3][2] * Inverted.Values[2][2]);
+    Inverted.Values[3][3] = 1.0f;
+
+    return Inverted;
 }

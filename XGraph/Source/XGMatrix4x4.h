@@ -38,8 +38,8 @@ struct XGMatrix4x4
     XGVector3D operator*(const XGVector3D& Vector) const;
 
     /**
-     * \brief Inverts the matrix using a quicker algorithm
+     * \brief Returns an inverted copy of this matrix using a quicker algorithm
      * \details This only works on rotation and/or translation matrices
      */
-    void InvertQuick();
+    XGMatrix4x4 QuickInverse() const;
 };

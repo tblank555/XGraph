@@ -37,6 +37,11 @@ private:
     XGVector3D CameraPosition;
 
     /**
+     * \brief The yaw angle of the camera
+     */
+    float CameraYaw = 0.0f;
+
+    /**
      * \brief A unit vector that describes the direction the camera is looking
      * \details Z is the forward vector
      */

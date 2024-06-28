@@ -6,6 +6,7 @@
 #include "XGEngine.h"
 
 #include <algorithm>
+#include <string>
 #include "XGTriangle.h"
 
 XGEngine::XGEngine(const std::string& MeshFilePath)
@@ -137,6 +138,30 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
         CameraPosition.X += 8.0f * fElapsedTime;
     }
 
+    const XGVector3D CameraForwardMovement = CameraLookDirection * 8.0f * fElapsedTime;
+
+    if (GetKey(olc::W).bHeld)
+    {
+        CameraPosition += CameraForwardMovement;
+    }
+
+    if (GetKey(olc::S).bHeld)
+    {
+        CameraPosition -= CameraForwardMovement;
+    }
+
+    if (GetKey(olc::A).bHeld)
+    {
+        CameraYaw -= 2.0f * fElapsedTime;
+    }
+
+    if (GetKey(olc::D).bHeld)
+    {
+        CameraYaw += 2.0f * fElapsedTime;
+    }
+
+    std::cout << "CameraPosition = (" + std::to_string(CameraPosition.X) + ", " + std::to_string(CameraPosition.Y) + ", " + std::to_string(CameraPosition.Z) + ")" << std::endl;
+
     // Uncomment to enable rotation
     //RotationAngle += 1.0f * fElapsedTime;
     const XGMatrix4x4 RotateAroundZAxis = XGMatrix4x4::RotationZ(RotationAngle);
@@ -147,10 +172,13 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
     const XGMatrix4x4 WorldMatrix = RotateAroundZAxis * RotateAroundXAxis * TranslateAlongZAxis;
     
     const XGVector3D CameraUp = { 0.0f, 1.0f, 0.0f };
+
+    const XGVector3D DefaultCameraLookDirection = { 0.0f, 0.0f, 1.0f };
+    CameraLookDirection = XGMatrix4x4::RotationY(CameraYaw) * DefaultCameraLookDirection;
     const XGVector3D CameraTarget = CameraPosition + CameraLookDirection;
 
     XGMatrix4x4 ViewMatrix = XGMatrix4x4::PointAt(CameraPosition, CameraTarget, CameraUp);
-    ViewMatrix.InvertQuick();
+    ViewMatrix = ViewMatrix.QuickInverse();
 
     std::vector<XGTriangle> TrianglesToDraw;
 
