@@ -264,30 +264,95 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
         return Depth1 < Depth2;
     });
 
-    // Rasterize the triangles
+    // Clip and rasterize the triangles
     for (const XGTriangle& Triangle : TrianglesToDraw)
     {
-        FillTriangle(
-            static_cast<int32_t>(Triangle.Points[0].X),
-            static_cast<int32_t>(Triangle.Points[0].Y),
-            static_cast<int32_t>(Triangle.Points[1].X),
-            static_cast<int32_t>(Triangle.Points[1].Y),
-            static_cast<int32_t>(Triangle.Points[2].X),
-            static_cast<int32_t>(Triangle.Points[2].Y),
-            Triangle.Color
-        );
+        std::list<XGTriangle> TriangleList;
+        
+        TriangleList.push_back(Triangle);
+        unsigned long long NumNewTriangles = 1;
 
-        if (ShouldDrawWireframe)
+        for (int PlaneIndex = 0; PlaneIndex < 4; ++PlaneIndex)
         {
-            DrawTriangle(
+            int NumTrianglesToAdd = 0;
+            while (NumNewTriangles > 0)
+            {
+                const XGTriangle TriangleToClip = TriangleList.front();
+                TriangleList.pop_front();
+                NumNewTriangles--;
+
+                // Clip triangles against all four screen edges
+                XGTriangle NewTrianglesFromClipping[2];
+                switch (PlaneIndex)
+                {
+                case 0:
+                    NumTrianglesToAdd = TriangleToClip.ClipAgainstPlane(
+                        { 0.0f, 0.0f, 0.0f },
+                        { 0.0f, 1.0f, 0.0f },
+                        NewTrianglesFromClipping[0],
+                        NewTrianglesFromClipping[1]
+                    );
+                    break;
+                case 1:
+                    NumTrianglesToAdd = TriangleToClip.ClipAgainstPlane(
+                        { 0.0f, static_cast<float>(ScreenHeight()) - 1.0f, 0.0f },
+                        { 0.0f, -1.0f, 0.0f },
+                        NewTrianglesFromClipping[0],
+                        NewTrianglesFromClipping[1]
+                    );
+                    break;
+                case 2:
+                    NumTrianglesToAdd = TriangleToClip.ClipAgainstPlane(
+                        { 0.0f, 0.0f, 0.0f },
+                        { 1.0f, 0.0f, 0.0f },
+                        NewTrianglesFromClipping[0],
+                        NewTrianglesFromClipping[1]
+                    );
+                    break;
+                case 3:
+                    NumTrianglesToAdd = TriangleToClip.ClipAgainstPlane(
+                        { static_cast<float>(ScreenWidth()) - 1.0f, 0.0f, 0.0f },
+                        { -1.0f, 0.0f, 0.0f },
+                        NewTrianglesFromClipping[0],
+                        NewTrianglesFromClipping[1]
+                    );
+                    break;
+                }
+
+                for (int i = 0; i < NumTrianglesToAdd; ++i)
+                {
+                    TriangleList.push_back(NewTrianglesFromClipping[i]);
+                }
+            }
+
+            NumNewTriangles = TriangleList.size();
+        }
+
+        // Rasterize the final list of triangles
+        for (const XGTriangle& TriangleToRasterize : TriangleList)
+        {
+            FillTriangle(
                 static_cast<int32_t>(Triangle.Points[0].X),
                 static_cast<int32_t>(Triangle.Points[0].Y),
                 static_cast<int32_t>(Triangle.Points[1].X),
                 static_cast<int32_t>(Triangle.Points[1].Y),
                 static_cast<int32_t>(Triangle.Points[2].X),
                 static_cast<int32_t>(Triangle.Points[2].Y),
-                olc::BLUE
+                Triangle.Color
             );
+
+            if (ShouldDrawWireframe)
+            {
+                DrawTriangle(
+                    static_cast<int32_t>(Triangle.Points[0].X),
+                    static_cast<int32_t>(Triangle.Points[0].Y),
+                    static_cast<int32_t>(Triangle.Points[1].X),
+                    static_cast<int32_t>(Triangle.Points[1].Y),
+                    static_cast<int32_t>(Triangle.Points[2].X),
+                    static_cast<int32_t>(Triangle.Points[2].Y),
+                    olc::BLUE
+                );
+            }
         }
     }
     
