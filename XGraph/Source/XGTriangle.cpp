@@ -91,14 +91,14 @@ int XGTriangle::ClipAgainstPlane(
         
         OutTriangle1.Points[1] = XGVector3D::GetLineToIntersectionWithPlane(
             PointOnPlane,
-            PlaneNormal,
+            NormalizedPlaneNormal,
             *InsidePoints[0],
             *OutsidePoints[0]
         );
 
         OutTriangle1.Points[2] = XGVector3D::GetLineToIntersectionWithPlane(
             PointOnPlane,
-            PlaneNormal,
+            NormalizedPlaneNormal,
             *InsidePoints[0],
             *OutsidePoints[1]
         );
@@ -124,7 +124,7 @@ int XGTriangle::ClipAgainstPlane(
         OutTriangle1.Points[1] = *InsidePoints[1];
         OutTriangle1.Points[2] = XGVector3D::GetLineToIntersectionWithPlane(
             PointOnPlane,
-            PlaneNormal,
+            NormalizedPlaneNormal,
             *InsidePoints[0],
             *OutsidePoints[0]
         );
@@ -135,7 +135,7 @@ int XGTriangle::ClipAgainstPlane(
         OutTriangle2.Points[1] = OutTriangle1.Points[2];
         OutTriangle2.Points[2] = XGVector3D::GetLineToIntersectionWithPlane(
             PointOnPlane,
-            PlaneNormal,
+            NormalizedPlaneNormal,
             *InsidePoints[1],
             *OutsidePoints[0]
         );
