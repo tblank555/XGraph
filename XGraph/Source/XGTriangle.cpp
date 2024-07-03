@@ -26,7 +26,7 @@ int XGTriangle::ClipAgainstPlane(
 
     auto GetSignedDistanceToPlane = [&](const XGVector3D& Position)
     {
-        return (NormalizedPlaneNormal.X * Position.X + NormalizedPlaneNormal.Y + Position.Y + NormalizedPlaneNormal.Z + Position.Z - NormalizedPlaneNormal.DotProduct(Position));
+        return (NormalizedPlaneNormal.X * Position.X + NormalizedPlaneNormal.Y * Position.Y + NormalizedPlaneNormal.Z * Position.Z - NormalizedPlaneNormal.DotProduct(Position));
     };
 
     const XGVector3D* InsidePoints[3];
