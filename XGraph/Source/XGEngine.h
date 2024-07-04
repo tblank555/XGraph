@@ -19,7 +19,7 @@ public:
     /**
      * \brief The distance the near clip plane should be from the camera
      */
-    float NearClipPlane = 2.1f;
+    float NearClipPlane = 0.1f;
 
     /**
      * \brief The direction of the global directional light

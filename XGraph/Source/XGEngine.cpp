@@ -104,7 +104,7 @@ bool XGEngine::OnUserCreate()
     );
 
     // Set and normalize the global directional light
-    LightDirection = XGVector3D(0.0f, 0.0f, -1.0f);
+    LightDirection = XGVector3D(0.0f, 1.0f, -1.0f);
     LightDirection.Normalize();
     
     return true;
@@ -166,7 +166,7 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
     const XGMatrix4x4 RotateAroundZAxis = XGMatrix4x4::RotationZ(RotationAngle);
     const XGMatrix4x4 RotateAroundXAxis = XGMatrix4x4::RotationX(RotationAngle * 0.5f);
 
-    const XGMatrix4x4 TranslateAlongZAxis = XGMatrix4x4::Translation({ 0.0f, 0.0f, 8.0f });
+    const XGMatrix4x4 TranslateAlongZAxis = XGMatrix4x4::Translation({ 0.0f, 0.0f, 5.0f });
 
     const XGMatrix4x4 WorldMatrix = RotateAroundZAxis * RotateAroundXAxis * TranslateAlongZAxis;
     
@@ -195,9 +195,9 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
         // Find the vector from the camera to the triangle
         // We can use any point on the triangle, because we're using this for the dot product with the normal,
         // and the normal will be the same a any point on the triangle
-        const XGVector3D CameraToTriangle = TransformedTriangle.Points[0] - CameraPosition;
+        const XGVector3D TriangleToCamera = TransformedTriangle.Points[0] - CameraPosition;
 
-        const float DotProduct = CameraToTriangle.DotProduct(Normal);
+        const float DotProduct = TriangleToCamera.DotProduct(Normal);
 
         // If the dot product of the vector from the camera to the triangle and the normal is greater than 0,
         // this triangle is facing away from the camera, and therefore shouldn't be rendered
@@ -227,12 +227,19 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
         for (int i = 0; i < ClippedTriangleCount; ++i)
         {
             // Project the triangle from view space to an intermediate screen space
-            XGTriangle ProjectedTriangle;
-            ClippedTriangles[i].Points[0].MultiplyByMatrix(ProjectionMatrix, ProjectedTriangle.Points[0]);
-            ClippedTriangles[i].Points[1].MultiplyByMatrix(ProjectionMatrix, ProjectedTriangle.Points[1]);
-            ClippedTriangles[i].Points[2].MultiplyByMatrix(ProjectionMatrix, ProjectedTriangle.Points[2]);
+            XGTriangle ProjectedTriangle = {
+                ProjectionMatrix * ClippedTriangles[i].Points[0],
+                ProjectionMatrix * ClippedTriangles[i].Points[1],
+                ProjectionMatrix * ClippedTriangles[i].Points[2],
+            };
 
-            const float Luminance = LightDirection.DotProduct(Normal);
+            // Normalize into Cartesian space
+            ProjectedTriangle.Points[0] /= ProjectedTriangle.Points[0].W;
+            ProjectedTriangle.Points[1] /= ProjectedTriangle.Points[1].W;
+            ProjectedTriangle.Points[2] /= ProjectedTriangle.Points[2].W;
+
+            // Calculate the color of the triangle based on its normal (in world space)
+            const float Luminance = std::max(0.1f, LightDirection.DotProduct(Normal));
             ProjectedTriangle.Color = CreateGrayscaleColor(Luminance);
 
             // Scale triangle into view
