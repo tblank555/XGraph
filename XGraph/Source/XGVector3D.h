@@ -48,6 +48,4 @@ struct XGVector3D
 
     float DotProduct(const XGVector3D& OtherVector) const;
     XGVector3D CrossProduct(const XGVector3D& OtherVector) const;
-
-    void MultiplyByMatrix(const XGMatrix4x4& Matrix, XGVector3D& Result) const;
 };
