@@ -158,6 +158,7 @@
     <ClInclude Include="Source\XGMatrix4x4.h" />
     <ClInclude Include="Source\XGMesh.h" />
     <ClInclude Include="Source\XGTriangle.h" />
+    <ClInclude Include="Source\XGVector2D.h" />
     <ClInclude Include="Source\XGVector3D.h" />
     <ClInclude Include="ThirdParty\olcPixelGameEngine.h" />
   </ItemGroup>
@@ -167,6 +168,7 @@
     <ClCompile Include="Source\XGMesh.cpp" />
     <ClCompile Include="Source\XGraph.cpp" />
     <ClCompile Include="Source\XGTriangle.cpp" />
+    <ClCompile Include="Source\XGVector2D.cpp" />
     <ClCompile Include="Source\XGVector3D.cpp" />
     <ClCompile Include="ThirdParty\olcPixelGameEngine.cpp" />
   </ItemGroup>

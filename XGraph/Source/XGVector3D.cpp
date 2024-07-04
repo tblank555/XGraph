@@ -7,16 +7,20 @@
 
 #include <cmath>
 
-XGVector3D XGVector3D::GetLineToIntersectionWithPlane(const XGVector3D& PointOnPlane, const XGVector3D& PlaneNormal,
-    const XGVector3D& LineStartPosition, const XGVector3D& LineEndPosition)
+XGVector3D XGVector3D::GetLineToIntersectionWithPlane(
+    const XGVector3D& PointOnPlane,
+    const XGVector3D& PlaneNormal,
+    const XGVector3D& LineStartPosition,
+    const XGVector3D& LineEndPosition,
+    float& OutIntersectionScale)
 {
     const XGVector3D NormalizedPlaneNormal = PlaneNormal.GetNormalizedCopy();
     const float PlaneDotProduct = -NormalizedPlaneNormal.DotProduct(PointOnPlane);
     const float LineStartDotProduct = LineStartPosition.DotProduct(NormalizedPlaneNormal);
     const float LineEndDotProduct = LineEndPosition.DotProduct(NormalizedPlaneNormal);
-    const float IntersectionScale = (-PlaneDotProduct - LineStartDotProduct) / (LineEndDotProduct - LineStartDotProduct);
+    OutIntersectionScale = (-PlaneDotProduct - LineStartDotProduct) / (LineEndDotProduct - LineStartDotProduct);
     const XGVector3D LineStartToEnd = LineEndPosition - LineStartPosition;
-    const XGVector3D LineStartToIntersection = LineStartToEnd * IntersectionScale;
+    const XGVector3D LineStartToIntersection = LineStartToEnd * OutIntersectionScale;
     return LineStartPosition + LineStartToIntersection;
 }
 

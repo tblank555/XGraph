@@ -24,12 +24,16 @@ struct XGVector3D
      * \param PlaneNormal The normal of the plane
      * \param LineStartPosition The start position of the line
      * \param LineEndPosition The end position of the line
+     * \param OutIntersectionScale A value from 0 to 1 that represents where along the given line the intersection
+     * occurs. 0 means the plane intersects the line right at the start position, 1 means the end position, and 0.5
+     * means the plane intersects the line exactly halfway between the start and end positions.
      */
     static XGVector3D GetLineToIntersectionWithPlane(
         const XGVector3D& PointOnPlane,
         const XGVector3D& PlaneNormal,
         const XGVector3D& LineStartPosition,
-        const XGVector3D& LineEndPosition
+        const XGVector3D& LineEndPosition,
+        float& OutIntersectionScale
     );
 
     XGVector3D operator+(const XGVector3D& OtherVector) const;

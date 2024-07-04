@@ -21,69 +21,105 @@ XGEngine::XGEngine(const std::string& MeshFilePath)
         MeshToRender.Triangles = {
             // South face
             XGTriangle(
-                XGVector3D(0.0f, 0.0f, 0.0f),
-                XGVector3D(0.0f, 1.0f, 0.0f),
-                XGVector3D(1.0f, 1.0f, 0.0f)
+                { 0.0f, 0.0f, 0.0f },
+                { 0.0f, 1.0f, 0.0f },
+                { 1.0f, 1.0f, 0.0f },
+                { 0.0f, 1.0f },
+                { 0.0f, 0.0f },
+                { 1.0f, 0.0f }
             ),
             XGTriangle(
-                XGVector3D(0.0f, 0.0f, 0.0f),
-                XGVector3D(1.0f, 1.0f, 0.0f),
-                XGVector3D(1.0f, 0.0f, 0.0f)
+                { 0.0f, 0.0f, 0.0f },
+                { 1.0f, 1.0f, 0.0f },
+                { 1.0f, 0.0f, 0.0f },
+                { 0.0f, 1.0f },
+                { 1.0f, 0.0f },
+                { 1.0f, 1.0f }
             ),
             // East face
             XGTriangle(
-                XGVector3D(1.0f, 0.0f, 0.0f),
-                XGVector3D(1.0f, 1.0f, 0.0f),
-                XGVector3D(1.0f, 1.0f, 1.0f)
+                { 1.0f, 0.0f, 0.0f },
+                { 1.0f, 1.0f, 0.0f },
+                { 1.0f, 1.0f, 1.0f },
+                { 0.0f, 1.0f },
+                { 0.0f, 0.0f },
+                { 1.0f, 0.0f }
             ),
             XGTriangle(
-                XGVector3D(1.0f, 0.0f, 0.0f),
-                XGVector3D(1.0f, 1.0f, 1.0f),
-                XGVector3D(1.0f, 0.0f, 1.0f)
+                { 1.0f, 0.0f, 0.0f },
+                { 1.0f, 1.0f, 1.0f },
+                { 1.0f, 0.0f, 1.0f },
+                { 0.0f, 1.0f },
+                { 1.0f, 0.0f },
+                { 1.0f, 1.0f }
             ),
             // North face
             XGTriangle(
-                XGVector3D(1.0f, 0.0f, 1.0f),
-                XGVector3D(1.0f, 1.0f, 1.0f),
-                XGVector3D(0.0f, 1.0f, 1.0f)
+                { 1.0f, 0.0f, 1.0f },
+                { 1.0f, 1.0f, 1.0f },
+                { 0.0f, 1.0f, 1.0f },
+                { 0.0f, 1.0f },
+                { 0.0f, 0.0f },
+                { 1.0f, 0.0f }
             ),
             XGTriangle(
-                XGVector3D(1.0f, 0.0f, 1.0f),
-                XGVector3D(0.0f, 1.0f, 1.0f),
-                XGVector3D(0.0f, 0.0f, 1.0f)
+                { 1.0f, 0.0f, 1.0f },
+                { 0.0f, 1.0f, 1.0f },
+                { 0.0f, 0.0f, 1.0f },
+                { 0.0f, 1.0f },
+                { 1.0f, 0.0f },
+                { 1.0f, 1.0f }
             ),
             // West face
             XGTriangle(
-                XGVector3D(0.0f, 0.0f, 1.0f),
-                XGVector3D(0.0f, 1.0f, 1.0f),
-                XGVector3D(0.0f, 1.0f, 0.0f)
+                { 0.0f, 0.0f, 1.0f },
+                { 0.0f, 1.0f, 1.0f },
+                { 0.0f, 1.0f, 0.0f },
+                { 0.0f, 1.0f },
+                { 0.0f, 0.0f },
+                { 1.0f, 0.0f }
             ),
             XGTriangle(
-                XGVector3D(0.0f, 0.0f, 1.0f),
-                XGVector3D(0.0f, 1.0f, 0.0f),
-                XGVector3D(0.0f, 0.0f, 0.0f)
+                { 0.0f, 0.0f, 1.0f },
+                { 0.0f, 1.0f, 0.0f },
+                { 0.0f, 0.0f, 0.0f },
+                { 0.0f, 1.0f },
+                { 1.0f, 0.0f },
+                { 1.0f, 1.0f }
             ),
             // Top face
             XGTriangle(
-                XGVector3D(0.0f, 1.0f, 0.0f),
-                XGVector3D(0.0f, 1.0f, 1.0f),
-                XGVector3D(1.0f, 1.0f, 1.0f)
+                { 0.0f, 1.0f, 0.0f },
+                { 0.0f, 1.0f, 1.0f },
+                { 1.0f, 1.0f, 1.0f },
+                { 0.0f, 1.0f },
+                { 0.0f, 0.0f },
+                { 1.0f, 0.0f }
             ),
             XGTriangle(
-                XGVector3D(0.0f, 1.0f, 0.0f),
-                XGVector3D(1.0f, 1.0f, 1.0f),
-                XGVector3D(1.0f, 1.0f, 0.0f)
+                { 0.0f, 1.0f, 0.0f },
+                { 1.0f, 1.0f, 1.0f },
+                { 1.0f, 1.0f, 0.0f },
+                { 0.0f, 1.0f },
+                { 1.0f, 0.0f },
+                { 1.0f, 1.0f }
             ),
             // Bottom face
             XGTriangle(
-                XGVector3D(1.0f, 0.0f, 1.0f),
-                XGVector3D(0.0f, 0.0f, 1.0f),
-                XGVector3D(0.0f, 0.0f, 0.0f)
+                { 1.0f, 0.0f, 1.0f },
+                { 0.0f, 0.0f, 1.0f },
+                { 0.0f, 0.0f, 0.0f },
+                { 0.0f, 1.0f },
+                { 0.0f, 0.0f },
+                { 1.0f, 0.0f }
             ),
             XGTriangle(
-                XGVector3D(1.0f, 0.0f, 1.0f),
-                XGVector3D(0.0f, 0.0f, 0.0f),
-                XGVector3D(1.0f, 0.0f, 0.0f)
+                { 1.0f, 0.0f, 1.0f },
+                { 0.0f, 0.0f, 0.0f },
+                { 1.0f, 0.0f, 0.0f },
+                { 0.0f, 1.0f },
+                { 1.0f, 0.0f },
+                { 1.0f, 1.0f }
             )
         };
     }
@@ -104,7 +140,7 @@ bool XGEngine::OnUserCreate()
     );
 
     // Set and normalize the global directional light
-    LightDirection = XGVector3D(0.0f, 1.0f, -1.0f);
+    LightDirection = { 0.0f, 1.0f, -1.0f };
     LightDirection.Normalize();
     
     return true;
@@ -188,6 +224,9 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
             WorldMatrix * Triangle.Points[0],
             WorldMatrix * Triangle.Points[1],
             WorldMatrix * Triangle.Points[2],
+            Triangle.TextureCoordinates[0],
+            Triangle.TextureCoordinates[1],
+            Triangle.TextureCoordinates[2],
         };
         
         XGVector3D Normal = TransformedTriangle.GetNormal();
@@ -211,6 +250,9 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
             ViewMatrix * TransformedTriangle.Points[0],
             ViewMatrix * TransformedTriangle.Points[1],
             ViewMatrix * TransformedTriangle.Points[2],
+            TransformedTriangle.TextureCoordinates[0],
+            TransformedTriangle.TextureCoordinates[1],
+            TransformedTriangle.TextureCoordinates[2],
         };
 
         // Clip the triangle in view space against the near clip plane
@@ -231,6 +273,9 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
                 ProjectionMatrix * ClippedTriangles[i].Points[0],
                 ProjectionMatrix * ClippedTriangles[i].Points[1],
                 ProjectionMatrix * ClippedTriangles[i].Points[2],
+                ClippedTriangles[i].TextureCoordinates[0],
+                ClippedTriangles[i].TextureCoordinates[1],
+                ClippedTriangles[i].TextureCoordinates[2],
             };
 
             // Normalize into Cartesian space

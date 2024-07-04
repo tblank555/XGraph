@@ -23,14 +23,14 @@
 
 int main(int ArgC, char* ArgV[])
 {
-    XGEngine Demo("Resources/Mountains.obj");
+    XGEngine Demo;
     if (!Demo.Construct(1920, 1080, 1, 1))
     {
         // TODO: Log error here
         return 1;
     }
 
-    Demo.ShouldDrawWireframe = false;
+    Demo.ShouldDrawWireframe = true;
 
     Demo.Start();
     

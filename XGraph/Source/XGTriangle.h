@@ -6,11 +6,14 @@
 #pragma once
 
 #include "../ThirdParty/olcPixelGameEngine.h"
+#include "XGVector2D.h"
 #include "XGVector3D.h"
 
 struct XGTriangle
 {
     XGVector3D Points[3];
+
+    XGVector2D TextureCoordinates[3];
 
     olc::Pixel Color;
 
@@ -18,6 +21,17 @@ struct XGTriangle
     
     XGTriangle(const XGVector3D& Point1, const XGVector3D& Point2, const XGVector3D& Point3)
         : Points{ Point1, Point2, Point3 }, Color(olc::WHITE) {}
+
+    XGTriangle(
+        const XGVector3D& Point1,
+        const XGVector3D& Point2,
+        const XGVector3D& Point3,
+        const XGVector2D& TextureCoordinate1,
+        const XGVector2D& TextureCoordinate2,
+        const XGVector2D& TextureCoordinate3
+    ) : Points{ Point1, Point2, Point3 },
+        TextureCoordinates{ TextureCoordinate1, TextureCoordinate2, TextureCoordinate3 },
+        Color(olc::WHITE) {}
 
     XGVector3D GetNormal() const;
 
