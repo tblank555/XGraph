@@ -6,13 +6,12 @@
 #include "XGVector3D.h"
 
 #include <cmath>
-#include "XGMatrix4x4.h"
 
 XGVector3D XGVector3D::GetLineToIntersectionWithPlane(const XGVector3D& PointOnPlane, const XGVector3D& PlaneNormal,
     const XGVector3D& LineStartPosition, const XGVector3D& LineEndPosition)
 {
     const XGVector3D NormalizedPlaneNormal = PlaneNormal.GetNormalizedCopy();
-    const float PlaneDotProduct = NormalizedPlaneNormal.DotProduct(PointOnPlane);
+    const float PlaneDotProduct = -NormalizedPlaneNormal.DotProduct(PointOnPlane);
     const float LineStartDotProduct = LineStartPosition.DotProduct(NormalizedPlaneNormal);
     const float LineEndDotProduct = LineEndPosition.DotProduct(NormalizedPlaneNormal);
     const float IntersectionScale = (-PlaneDotProduct - LineStartDotProduct) / (LineEndDotProduct - LineStartDotProduct);

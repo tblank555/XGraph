@@ -23,14 +23,14 @@
 
 int main(int ArgC, char* ArgV[])
 {
-    XGEngine Demo("Resources/Axes.obj");
+    XGEngine Demo("Resources/Spaceship.obj");
     if (!Demo.Construct(1920, 1080, 1, 1))
     {
         // TODO: Log error here
         return 1;
     }
 
-    Demo.ShouldDrawWireframe = true;
+    Demo.ShouldDrawWireframe = false;
 
     Demo.Start();
     

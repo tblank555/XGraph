@@ -338,26 +338,28 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
         // Rasterize the final list of triangles
         for (const XGTriangle& TriangleToRasterize : TriangleList)
         {
-            FillTriangle(
-                static_cast<int32_t>(Triangle.Points[0].X),
-                static_cast<int32_t>(Triangle.Points[0].Y),
-                static_cast<int32_t>(Triangle.Points[1].X),
-                static_cast<int32_t>(Triangle.Points[1].Y),
-                static_cast<int32_t>(Triangle.Points[2].X),
-                static_cast<int32_t>(Triangle.Points[2].Y),
-                Triangle.Color
-            );
-
             if (ShouldDrawWireframe)
             {
                 DrawTriangle(
-                    static_cast<int32_t>(Triangle.Points[0].X),
-                    static_cast<int32_t>(Triangle.Points[0].Y),
-                    static_cast<int32_t>(Triangle.Points[1].X),
-                    static_cast<int32_t>(Triangle.Points[1].Y),
-                    static_cast<int32_t>(Triangle.Points[2].X),
-                    static_cast<int32_t>(Triangle.Points[2].Y),
-                    olc::BLUE
+                    static_cast<int32_t>(TriangleToRasterize.Points[0].X),
+                    static_cast<int32_t>(TriangleToRasterize.Points[0].Y),
+                    static_cast<int32_t>(TriangleToRasterize.Points[1].X),
+                    static_cast<int32_t>(TriangleToRasterize.Points[1].Y),
+                    static_cast<int32_t>(TriangleToRasterize.Points[2].X),
+                    static_cast<int32_t>(TriangleToRasterize.Points[2].Y),
+                    olc::WHITE
+                );
+            }
+            else
+            {
+                FillTriangle(
+                    static_cast<int32_t>(TriangleToRasterize.Points[0].X),
+                    static_cast<int32_t>(TriangleToRasterize.Points[0].Y),
+                    static_cast<int32_t>(TriangleToRasterize.Points[1].X),
+                    static_cast<int32_t>(TriangleToRasterize.Points[1].Y),
+                    static_cast<int32_t>(TriangleToRasterize.Points[2].X),
+                    static_cast<int32_t>(TriangleToRasterize.Points[2].Y),
+                    Triangle.Color
                 );
             }
         }

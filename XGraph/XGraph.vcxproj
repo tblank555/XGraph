@@ -246,6 +246,7 @@
     <Content Include="Resources\Axes.obj" />
     <Content Include="Resources\Spaceship.obj" />
     <Content Include="Resources\Teapot.obj" />
+    <Content Include="Resources\Triangle.obj" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
