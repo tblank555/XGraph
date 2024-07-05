@@ -142,6 +142,13 @@ bool XGEngine::OnUserCreate()
     // Set and normalize the global directional light
     LightDirection = { 0.0f, 1.0f, -1.0f };
     LightDirection.Normalize();
+
+    // Load the global texture
+    TextureToRender = new olc::Sprite();
+    if (TextureToRender->LoadFromFile("Resources/BlueCircle.bmp") != olc::OK)
+    {
+        std::cout << "ERROR: Failed to load texture" << std::endl;
+    }
     
     return true;
 }
@@ -397,15 +404,17 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
             }
             else
             {
-                FillTriangle(
-                    static_cast<int32_t>(TriangleToRasterize.Points[0].X),
-                    static_cast<int32_t>(TriangleToRasterize.Points[0].Y),
-                    static_cast<int32_t>(TriangleToRasterize.Points[1].X),
-                    static_cast<int32_t>(TriangleToRasterize.Points[1].Y),
-                    static_cast<int32_t>(TriangleToRasterize.Points[2].X),
-                    static_cast<int32_t>(TriangleToRasterize.Points[2].Y),
-                    Triangle.Color
-                );
+                // FillTriangle(
+                //     static_cast<int32_t>(TriangleToRasterize.Points[0].X),
+                //     static_cast<int32_t>(TriangleToRasterize.Points[0].Y),
+                //     static_cast<int32_t>(TriangleToRasterize.Points[1].X),
+                //     static_cast<int32_t>(TriangleToRasterize.Points[1].Y),
+                //     static_cast<int32_t>(TriangleToRasterize.Points[2].X),
+                //     static_cast<int32_t>(TriangleToRasterize.Points[2].Y),
+                //     Triangle.Color
+                // );
+
+                DrawTexturedTriangle(TriangleToRasterize, *TextureToRender);
             }
         }
     }
@@ -416,4 +425,204 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
 olc::Pixel XGEngine::CreateGrayscaleColor(const float& Brightness)
 {
     return olc::PixelF(Brightness, Brightness, Brightness, 1.0f);
+}
+
+void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprite& TextureSprite)
+{
+    // Create a bunch of local variable's so Javidx9's code is easier to compare to
+    
+    float u1 = Triangle.TextureCoordinates[0].U;
+    float u2 = Triangle.TextureCoordinates[1].U;
+    float u3 = Triangle.TextureCoordinates[2].U;
+    float v1 = Triangle.TextureCoordinates[0].V;
+    float v2 = Triangle.TextureCoordinates[1].V;
+    float v3 = Triangle.TextureCoordinates[2].V;
+
+    // Since we're drawing pixels, we're going to use integer X and Y coordinates
+    int x1 = static_cast<int>(Triangle.Points[0].X);
+    int x2 = static_cast<int>(Triangle.Points[1].X);
+    int x3 = static_cast<int>(Triangle.Points[2].X);
+    int y1 = static_cast<int>(Triangle.Points[0].Y);
+    int y2 = static_cast<int>(Triangle.Points[1].Y);
+    int y3 = static_cast<int>(Triangle.Points[2].Y);
+
+    // Sort the variables based on the Y position of each point of the triangle
+    
+    if (y2 < y1)
+    {
+        std::swap(y1, y2);
+        std::swap(x1, x2);
+        std::swap(u1, u2);
+        std::swap(v1, v2);
+    }
+
+    if (y3 < y1)
+    {
+        std::swap(y1, y3);
+        std::swap(x1, x3);
+        std::swap(u1, u3);
+        std::swap(v1, v3);
+    }
+
+    if (y3 < y2)
+    {
+        std::swap(y2, y3);
+        std::swap(x2, x3);
+        std::swap(u2, u3);
+        std::swap(v2, v3);
+    }
+
+    // Calculate the slope of Line A
+    int dy1 = y2 - y1;
+    int dx1 = x2 - x1;
+    float dv1 = v2 - v1;
+    float du1 = u2 - u1;
+
+    // Calculate the slope of Line B
+    int dy2 = y3 - y1;
+    int dx2 = x3 - x1;
+    float dv2 = v3 - v1;
+    float du2 = u3 - u1;
+
+    float dax_step = 0.0f;
+    float dbx_step = 0.0f;
+    float du1_step = 0.0f;
+    float dv1_step = 0.0f;
+    float du2_step = 0.0f;
+    float dv2_step = 0.0f;
+
+    if (dy1 > 0)
+    {
+        dax_step = dx1 / static_cast<float>(std::abs(dy1));
+    }
+
+    if (dy2 > 0)
+    {
+        dbx_step = dx2 / static_cast<float>(std::abs(dy2));
+    }
+
+    if (dy1 > 0)
+    {
+        du1_step = du1 / static_cast<float>(std::abs(dy1));
+        dv1_step = dv1 / static_cast<float>(std::abs(dy1));
+    }
+
+    if (dy2 > 0)
+    {
+        du2_step = du2 / static_cast<float>(std::abs(dy2));
+        dv2_step = dv2 / static_cast<float>(std::abs(dy2));
+    }
+
+    float TexU;
+    float TexV;
+
+    // Draw the top half of the triangle as long as Line A isn't flat
+    if (dy1 > 0)
+    {
+        // For each row in the top half of the triangle,
+        for (int i = y1; i <= y2; i++)
+        {
+            int ax = x1 + static_cast<float>(i - y1) * dax_step;
+            int bx = x1 + static_cast<float>(i - y1) * dbx_step;
+
+            float UStart = u1 + static_cast<float>(i - y1) * du1_step;
+            float VStart = u1 + static_cast<float>(i - y1) * dv1_step;
+            
+            float UEnd = u1 + static_cast<float>(i - y1) * du2_step;
+            float VEnd = v1 + static_cast<float>(i - y1) * dv2_step;
+
+            // Sort ax and bx to make sure we're always going from a smaller X value to a larger one
+            if (ax > bx)
+            {
+                std::swap(ax, bx);
+                std::swap(UStart, UEnd);
+                std::swap(VStart, VEnd);
+            }
+
+            TexU = UStart;
+            TexV = VStart;
+
+            float TStep = 1.0f / static_cast<float>(bx - ax);
+            float T = 0.0f;
+
+            for (int j = ax; j < bx; j++)
+            {
+                TexU = (1.0f - T) * UStart + T * UEnd;
+                TexV = (1.0f - T) * VStart + T * VEnd;
+
+                const olc::Pixel SampledColor = TextureSprite.Sample(TexU, TexV);
+                Draw(j, i, SampledColor);
+                
+                T += TStep;
+            }
+        }
+    }
+
+    // Update our "d" values for the bottom half of the triangle
+    dy1 = y3 - y2;
+    dx1 = x3 - x2;
+    dv1 = v3 - v2;
+    du1 = u3 - u2;
+
+    // Update the step values only for Line A. Since it's a triangle, Line B will not have changed for the bottom half.
+    du1_step = 0.0f;
+    dv1_step = 0.0f;
+
+    if (dy1 > 0)
+    {
+        dax_step = dx1 / static_cast<float>(std::abs(dy1));
+    }
+
+    if (dy2 > 0)
+    {
+        dbx_step = dx2 / static_cast<float>(std::abs(dy2));
+    }
+
+    if (dy1 > 0)
+    {
+        du1_step = du1 / static_cast<float>(std::abs(dy1));
+        dv1_step = dv1 / static_cast<float>(std::abs(dy1));
+    }
+
+    // Draw the bottom half of the triangle as long as Line A isn't flat
+    if (dy1 > 0)
+    {
+        // For each row in the bottom half of the triangle,
+        for (int i = y2; i <= y3; i++)
+        {
+            int ax = x2 + static_cast<float>(i - y2) * dax_step;
+            int bx = x1 + static_cast<float>(i - y1) * dbx_step;
+
+            float UStart = u2 + static_cast<float>(i - y2) * du1_step;
+            float VStart = u2 + static_cast<float>(i - y2) * dv1_step;
+        
+            float UEnd = u1 + static_cast<float>(i - y1) * du2_step;
+            float VEnd = v1 + static_cast<float>(i - y1) * dv2_step;
+
+            // Sort ax and bx to make sure we're always going from a smaller X value to a larger one
+            if (ax > bx)
+            {
+                std::swap(ax, bx);
+                std::swap(UStart, UEnd);
+                std::swap(VStart, VEnd);
+            }
+
+            TexU = UStart;
+            TexV = VStart;
+
+            float TStep = 1.0f / static_cast<float>(bx - ax);
+            float T = 0.0f;
+
+            for (int j = ax; j < bx; j++)
+            {
+                TexU = (1.0f - T) * UStart + T * UEnd;
+                TexV = (1.0f - T) * VStart + T * VEnd;
+
+                const olc::Pixel SampledColor = TextureSprite.Sample(TexU, TexV);
+                Draw(j, i, SampledColor);
+            
+                T += TStep;
+            }
+        }
+    }
 }

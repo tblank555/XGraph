@@ -38,6 +38,11 @@ private:
     XGMesh MeshToRender;
 
     /**
+     * \brief The texture to apply to all triangles of the mesh
+     */
+    olc::Sprite* TextureToRender;
+
+    /**
      * \brief Perspective projection matrix
      */
     XGMatrix4x4 ProjectionMatrix;
@@ -70,4 +75,11 @@ private:
      * \return The color
      */
     static olc::Pixel CreateGrayscaleColor(const float& Brightness);
+
+    /**
+     * \brief Draws the given triangle on the screen with the given texture
+     * \param Triangle The triangle to draw (in screen space)
+     * \param TextureSprite The texture to apply to the triangle
+     */
+    void DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprite& TextureSprite);
 };

@@ -176,6 +176,7 @@
     <Content Include="Resources\Axes.obj" />
     <Content Include="Resources\Mountains.obj" />
     <Content Include="Resources\Spaceship.obj" />
+    <Content Include="Resources\BlueCircle.bmp" />
     <Content Include="Resources\Teapot.obj" />
     <Content Include="Resources\Triangle.obj" />
   </ItemGroup>
