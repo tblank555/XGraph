@@ -113,6 +113,7 @@ int XGTriangle::ClipAgainstPlane(
         // Calculate the new texture coordinates for this new point
         OutTriangle1.TextureCoordinates[1].U = IntersectionScale1 * (OutsideTextureCoordinates[0]->U - InsideTextureCoordinates[0]->U) + InsideTextureCoordinates[0]->U;
         OutTriangle1.TextureCoordinates[1].V = IntersectionScale1 * (OutsideTextureCoordinates[0]->V - InsideTextureCoordinates[0]->V) + InsideTextureCoordinates[0]->V;
+        OutTriangle1.TextureCoordinates[1].W = IntersectionScale1 * (OutsideTextureCoordinates[0]->W - InsideTextureCoordinates[0]->W) + InsideTextureCoordinates[0]->W;
 
         float IntersectionScale2;
         OutTriangle1.Points[2] = XGVector3D::GetLineToIntersectionWithPlane(
@@ -126,6 +127,7 @@ int XGTriangle::ClipAgainstPlane(
         // Calculate the new texture coordinates for this new point
         OutTriangle1.TextureCoordinates[2].U = IntersectionScale2 * (OutsideTextureCoordinates[1]->U - InsideTextureCoordinates[0]->U) + InsideTextureCoordinates[0]->U;
         OutTriangle1.TextureCoordinates[2].V = IntersectionScale2 * (OutsideTextureCoordinates[1]->V - InsideTextureCoordinates[0]->V) + InsideTextureCoordinates[0]->V;
+        OutTriangle1.TextureCoordinates[2].W = IntersectionScale2 * (OutsideTextureCoordinates[1]->W - InsideTextureCoordinates[0]->W) + InsideTextureCoordinates[0]->W;
 
         return 1;
     }
@@ -163,6 +165,7 @@ int XGTriangle::ClipAgainstPlane(
         // Calculate the new texture coordinates for this new point
         OutTriangle1.TextureCoordinates[2].U = IntersectionScale1 * (OutsideTextureCoordinates[0]->U - InsideTextureCoordinates[0]->U) + InsideTextureCoordinates[0]->U;
         OutTriangle1.TextureCoordinates[2].V = IntersectionScale1 * (OutsideTextureCoordinates[0]->V - InsideTextureCoordinates[0]->V) + InsideTextureCoordinates[0]->V;
+        OutTriangle1.TextureCoordinates[2].W = IntersectionScale1 * (OutsideTextureCoordinates[0]->W - InsideTextureCoordinates[0]->W) + InsideTextureCoordinates[0]->W;
 
         // The second new triangle uses the second inside point, the new point we just calculated above, and a new point
         // where the second side of the triangle intersects the clipping plane
@@ -185,6 +188,7 @@ int XGTriangle::ClipAgainstPlane(
         // Calculate the new texture coordinates for this new point
         OutTriangle2.TextureCoordinates[2].U = IntersectionScale2 * (OutsideTextureCoordinates[0]->U - InsideTextureCoordinates[1]->U) + InsideTextureCoordinates[1]->U;
         OutTriangle2.TextureCoordinates[2].V = IntersectionScale2 * (OutsideTextureCoordinates[0]->V - InsideTextureCoordinates[1]->V) + InsideTextureCoordinates[1]->V;
+        OutTriangle2.TextureCoordinates[2].W = IntersectionScale2 * (OutsideTextureCoordinates[0]->W - InsideTextureCoordinates[1]->W) + InsideTextureCoordinates[1]->W;
 
         return 2;
     }

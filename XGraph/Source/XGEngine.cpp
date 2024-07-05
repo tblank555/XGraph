@@ -285,6 +285,21 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
                 ClippedTriangles[i].TextureCoordinates[2],
             };
 
+            // Update the texture coordinates to respect projected depth
+            
+            ProjectedTriangle.TextureCoordinates[0].U /= ProjectedTriangle.Points[0].W;
+            ProjectedTriangle.TextureCoordinates[1].U /= ProjectedTriangle.Points[1].W;
+            ProjectedTriangle.TextureCoordinates[2].U /= ProjectedTriangle.Points[2].W;
+            
+            ProjectedTriangle.TextureCoordinates[0].V /= ProjectedTriangle.Points[0].W;
+            ProjectedTriangle.TextureCoordinates[1].V /= ProjectedTriangle.Points[1].W;
+            ProjectedTriangle.TextureCoordinates[2].V /= ProjectedTriangle.Points[2].W;
+
+            // Set the W component of the texture coordinates to the inverse of the W component of the vertices
+            ProjectedTriangle.TextureCoordinates[0].W = 1.0f / ProjectedTriangle.Points[0].W;
+            ProjectedTriangle.TextureCoordinates[1].W = 1.0f / ProjectedTriangle.Points[1].W;
+            ProjectedTriangle.TextureCoordinates[2].W = 1.0f / ProjectedTriangle.Points[2].W;
+
             // Normalize into Cartesian space
             ProjectedTriangle.Points[0] /= ProjectedTriangle.Points[0].W;
             ProjectedTriangle.Points[1] /= ProjectedTriangle.Points[1].W;
@@ -437,6 +452,9 @@ void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprit
     float v1 = Triangle.TextureCoordinates[0].V;
     float v2 = Triangle.TextureCoordinates[1].V;
     float v3 = Triangle.TextureCoordinates[2].V;
+    float w1 = Triangle.TextureCoordinates[0].W;
+    float w2 = Triangle.TextureCoordinates[1].W;
+    float w3 = Triangle.TextureCoordinates[2].W;
 
     // Since we're drawing pixels, we're going to use integer X and Y coordinates
     int x1 = static_cast<int>(Triangle.Points[0].X);
@@ -454,6 +472,7 @@ void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprit
         std::swap(x1, x2);
         std::swap(u1, u2);
         std::swap(v1, v2);
+        std::swap(w1, w2);
     }
 
     if (y3 < y1)
@@ -462,6 +481,7 @@ void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprit
         std::swap(x1, x3);
         std::swap(u1, u3);
         std::swap(v1, v3);
+        std::swap(w1, w3);
     }
 
     if (y3 < y2)
@@ -470,6 +490,7 @@ void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprit
         std::swap(x2, x3);
         std::swap(u2, u3);
         std::swap(v2, v3);
+        std::swap(w2, w3);
     }
 
     // Calculate the slope of Line A
@@ -477,19 +498,23 @@ void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprit
     int dx1 = x2 - x1;
     float dv1 = v2 - v1;
     float du1 = u2 - u1;
+    float dw1 = w2 - w1;
 
     // Calculate the slope of Line B
     int dy2 = y3 - y1;
     int dx2 = x3 - x1;
     float dv2 = v3 - v1;
     float du2 = u3 - u1;
+    float dw2 = w3 - w1;
 
     float dax_step = 0.0f;
     float dbx_step = 0.0f;
     float du1_step = 0.0f;
     float dv1_step = 0.0f;
+    float dw1_step = 0.0f;
     float du2_step = 0.0f;
     float dv2_step = 0.0f;
+    float dw2_step = 0.0f;
 
     if (dy1 > 0)
     {
@@ -505,16 +530,19 @@ void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprit
     {
         du1_step = du1 / static_cast<float>(std::abs(dy1));
         dv1_step = dv1 / static_cast<float>(std::abs(dy1));
+        dw1_step = dw1 / static_cast<float>(std::abs(dy1));
     }
 
     if (dy2 > 0)
     {
         du2_step = du2 / static_cast<float>(std::abs(dy2));
         dv2_step = dv2 / static_cast<float>(std::abs(dy2));
+        dw2_step = dw2 / static_cast<float>(std::abs(dy2));
     }
     
     float TexU;
     float TexV;
+    float TexW;
 
     // Draw the top half of the triangle as long as Line A isn't flat
     if (dy1 > 0)
@@ -527,9 +555,11 @@ void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprit
 
             float UStart = u1 + static_cast<float>(i - y1) * du1_step;
             float VStart = v1 + static_cast<float>(i - y1) * dv1_step;
+            float WStart = w1 + static_cast<float>(i - y1) * dw1_step;
             
             float UEnd = u1 + static_cast<float>(i - y1) * du2_step;
             float VEnd = v1 + static_cast<float>(i - y1) * dv2_step;
+            float WEnd = w1 + static_cast<float>(i - y1) * dw2_step;
 
             // Sort ax and bx to make sure we're always going from a smaller X value to a larger one
             if (ax > bx)
@@ -537,6 +567,7 @@ void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprit
                 std::swap(ax, bx);
                 std::swap(UStart, UEnd);
                 std::swap(VStart, VEnd);
+                std::swap(WStart, WEnd);
             }
 
             float TStep = 1.0f / static_cast<float>(bx - ax);
@@ -546,8 +577,9 @@ void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprit
             {
                 TexU = (1.0f - T) * UStart + T * UEnd;
                 TexV = (1.0f - T) * VStart + T * VEnd;
+                TexW = (1.0f - T) * WStart + T * WEnd;
 
-                const olc::Pixel SampledColor = TextureSprite.Sample(TexU, TexV);
+                const olc::Pixel SampledColor = TextureSprite.Sample(TexU / TexW, TexV / TexW);
                 Draw(j, i, SampledColor);
                 
                 T += TStep;
@@ -560,10 +592,12 @@ void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprit
     dx1 = x3 - x2;
     dv1 = v3 - v2;
     du1 = u3 - u2;
+    dw1 = w3 - w2;
 
     // Update the step values only for Line A. Since it's a triangle, Line B will not have changed for the bottom half.
     du1_step = 0.0f;
     dv1_step = 0.0f;
+    dw1_step = 0.0f;
 
     if (dy1 > 0)
     {
@@ -579,6 +613,7 @@ void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprit
     {
         du1_step = du1 / static_cast<float>(std::abs(dy1));
         dv1_step = dv1 / static_cast<float>(std::abs(dy1));
+        dw1_step = dw1 / static_cast<float>(std::abs(dy1));
     }
 
     // Draw the bottom half of the triangle as long as Line A isn't flat
@@ -592,9 +627,11 @@ void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprit
 
             float UStart = u2 + static_cast<float>(i - y2) * du1_step;
             float VStart = v2 + static_cast<float>(i - y2) * dv1_step;
+            float WStart = w2 + static_cast<float>(i - y2) * dw1_step;
         
             float UEnd = u1 + static_cast<float>(i - y1) * du2_step;
             float VEnd = v1 + static_cast<float>(i - y1) * dv2_step;
+            float WEnd = w1 + static_cast<float>(i - y1) * dw2_step;
 
             // Sort ax and bx to make sure we're always going from a smaller X value to a larger one
             if (ax > bx)
@@ -602,6 +639,7 @@ void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprit
                 std::swap(ax, bx);
                 std::swap(UStart, UEnd);
                 std::swap(VStart, VEnd);
+                std::swap(WStart, WEnd);
             }
 
             float TStep = 1.0f / static_cast<float>(bx - ax);
@@ -611,8 +649,9 @@ void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprit
             {
                 TexU = (1.0f - T) * UStart + T * UEnd;
                 TexV = (1.0f - T) * VStart + T * VEnd;
+                TexW = (1.0f - T) * WStart + T * WEnd;
 
-                const olc::Pixel SampledColor = TextureSprite.Sample(TexU, TexV);
+                const olc::Pixel SampledColor = TextureSprite.Sample(TexU / TexW, TexV / TexW);
                 Draw(j, i, SampledColor);
             
                 T += TStep;
