@@ -512,7 +512,7 @@ void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprit
         du2_step = du2 / static_cast<float>(std::abs(dy2));
         dv2_step = dv2 / static_cast<float>(std::abs(dy2));
     }
-
+    
     float TexU;
     float TexV;
 
@@ -526,7 +526,7 @@ void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprit
             int bx = x1 + static_cast<float>(i - y1) * dbx_step;
 
             float UStart = u1 + static_cast<float>(i - y1) * du1_step;
-            float VStart = u1 + static_cast<float>(i - y1) * dv1_step;
+            float VStart = v1 + static_cast<float>(i - y1) * dv1_step;
             
             float UEnd = u1 + static_cast<float>(i - y1) * du2_step;
             float VEnd = v1 + static_cast<float>(i - y1) * dv2_step;
@@ -538,9 +538,6 @@ void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprit
                 std::swap(UStart, UEnd);
                 std::swap(VStart, VEnd);
             }
-
-            TexU = UStart;
-            TexV = VStart;
 
             float TStep = 1.0f / static_cast<float>(bx - ax);
             float T = 0.0f;
@@ -594,7 +591,7 @@ void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprit
             int bx = x1 + static_cast<float>(i - y1) * dbx_step;
 
             float UStart = u2 + static_cast<float>(i - y2) * du1_step;
-            float VStart = u2 + static_cast<float>(i - y2) * dv1_step;
+            float VStart = v2 + static_cast<float>(i - y2) * dv1_step;
         
             float UEnd = u1 + static_cast<float>(i - y1) * du2_step;
             float VEnd = v1 + static_cast<float>(i - y1) * dv2_step;
@@ -606,9 +603,6 @@ void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprit
                 std::swap(UStart, UEnd);
                 std::swap(VStart, VEnd);
             }
-
-            TexU = UStart;
-            TexV = VStart;
 
             float TStep = 1.0f / static_cast<float>(bx - ax);
             float T = 0.0f;
