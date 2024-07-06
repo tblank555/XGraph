@@ -53,7 +53,7 @@ bool XGMesh::LoadFromObjectFile(const std::string& FilePath, bool HasTexture, bo
 
                 TextureCoordinates.push_back(VertexTextureCoordinates);
             }
-            else
+            else if (Line[1] == ' ')
             {
                 // This line defines a vertex, so we'll create an instance of XGVertex3D for it
                 XGVector3D Vertex;

@@ -172,14 +172,11 @@
     <ClCompile Include="ThirdParty\olcPixelGameEngine.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\Axes.obj" />
+    <Content Include="Resources\Grass.bmp" />
     <Content Include="Resources\Mountains.obj" />
     <Content Include="Resources\Spaceship.obj" />
-    <Content Include="Resources\BlueCircle.bmp" />
-    <Content Include="Resources\SpyroLevel.obj" />
-    <Content Include="Resources\SpyroLevelTextureHigh.bmp" />
     <Content Include="Resources\Teapot.obj" />
-    <Content Include="Resources\Triangle.obj" />
+    <Content Include="Resources\ValleyTerrain.obj" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

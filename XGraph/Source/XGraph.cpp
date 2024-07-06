@@ -24,8 +24,8 @@
 int main(int ArgC, char* ArgV[])
 {
     XGEngine Demo(
-        "Resources/SpyroLevel.obj",
-        "Resources/SpyroLevelTextureHigh.bmp",
+        "Resources/ValleyTerrain.obj",
+        "Resources/Grass.bmp",
         true
     );
 
