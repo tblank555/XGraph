@@ -84,11 +84,6 @@ private:
     XGVector3D CameraLookDirection = { 0.0f, 0.0f, 1.0f };
 
     /**
-     * \brief The amount of rotation to apply to the mesh this frame
-     */
-    float RotationAngle = 0.0f;
-
-    /**
      * \brief The depth value (W) of the texture being drawn at each pixel on the screen
      */
     float* DepthBuffer = nullptr;
@@ -99,6 +94,33 @@ private:
      * \return The color
      */
     static olc::Pixel CreateGrayscaleColor(const float& Brightness);
+
+    /**
+     * \brief Move the camera based on keyboard input
+     */
+    void ProcessKeyboardInput(const float& SecondsElapsedThisFrame);
+
+    /**
+     * \brief Transform and project triangles from world space to screen space
+     * \param Mesh The mesh to get the triangles from
+     * \param WorldMatrix The matrix used to convert the triangles from model space to world space
+     * \param ViewMatrix The matrix used to convert the triangles from world space to view space (camera space)
+     * \param OutProjectedTriangles The triangles projected into screen space (perspective projection)
+     */
+    void TransformAndProjectTriangles(
+        const XGMesh& Mesh,
+        const XGMatrix4x4& WorldMatrix,
+        const XGMatrix4x4& ViewMatrix,
+        std::vector<XGTriangle>& OutProjectedTriangles
+    );
+
+    /**
+     * \brief Clip triangles that are outside the view frustum and rasterize them onto the screen
+     * \param Triangles The triangles to clip and rasterize. These are assumed to be in screen space already.
+     */
+    void ClipAndRasterizeTriangles(
+        const std::vector<XGTriangle>& Triangles
+    );
 
     /**
      * \brief Draws the given triangle on the screen with the given texture

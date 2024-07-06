@@ -154,36 +154,94 @@ bool XGEngine::OnUserCreate()
     LightDirection.Normalize();
 
     // Initialize the depth buffer
-    DepthBuffer = new float[ScreenWidth() * ScreenHeight()];
+    const unsigned long long BufferSize = static_cast<unsigned long long>(ScreenWidth()) * static_cast<unsigned long long>(ScreenHeight());
+    DepthBuffer = new float[BufferSize];
     
     return true;
 }
 
 bool XGEngine::OnUserUpdate(float fElapsedTime)
 {
-    // Process keyboard input
+    ProcessKeyboardInput(fElapsedTime);
+
+    // Move the mesh out in front of the camera
+    const XGMatrix4x4 WorldMatrix = XGMatrix4x4::Translation({ 0.0f, 0.0f, 5.0f });
     
+    // Calculate the camera's look direction based on the current yaw value
+    const XGVector3D DefaultCameraLookDirection = { 0.0f, 0.0f, 1.0f };
+    CameraLookDirection = XGMatrix4x4::RotationY(CameraYaw) * DefaultCameraLookDirection;
+
+    // Calculate the view matrix based on the camera's position and orientation
+    const XGVector3D CameraUp = { 0.0f, 1.0f, 0.0f };
+    const XGVector3D CameraTarget = CameraPosition + CameraLookDirection;
+    XGMatrix4x4 ViewMatrix = XGMatrix4x4::PointAt(CameraPosition, CameraTarget, CameraUp);
+    ViewMatrix = ViewMatrix.QuickInverse();
+
+    std::vector<XGTriangle> TrianglesToDraw;
+    TransformAndProjectTriangles(
+        MeshToRender,
+        WorldMatrix,
+        ViewMatrix,
+        TrianglesToDraw
+    );
+
+    // Sort the triangles from farthest away from the camera to closest if we're in FlatShaded mode.
+    // The depth buffer handles draw order issues in textured mode, and it doesn't matter in wireframe mode.
+    if (RenderMode == FlatShaded)
+    {
+        std::sort(TrianglesToDraw.begin(), TrianglesToDraw.end(), [](const XGTriangle& Triangle1, const XGTriangle& Triangle2)
+        {
+            // Get the midpoint in the Z axis of the triangles
+            const float Depth1 = (Triangle1.Points[0].Z + Triangle1.Points[1].Z + Triangle1.Points[2].Z) / 3.0f;
+            const float Depth2 = (Triangle2.Points[0].Z + Triangle2.Points[1].Z + Triangle2.Points[2].Z) / 3.0f;
+    
+            return Depth1 < Depth2;
+        });
+    }
+
+    // Clear screen to black
+    FillRect(0, 0, ScreenWidth(), ScreenHeight(), olc::BLACK);
+
+    // Clear the depth buffer
+    for (int i = 0; i < ScreenWidth() * ScreenHeight(); ++i)
+    {
+        DepthBuffer[i] = 0.0f;
+    }
+
+    // Clip and rasterize the triangles
+    ClipAndRasterizeTriangles(TrianglesToDraw);
+    
+    return true;
+}
+
+olc::Pixel XGEngine::CreateGrayscaleColor(const float& Brightness)
+{
+    return olc::PixelF(Brightness, Brightness, Brightness, 1.0f);
+}
+
+void XGEngine::ProcessKeyboardInput(const float& SecondsElapsedThisFrame)
+{
     if (GetKey(olc::UP).bHeld)
     {
-        CameraPosition.Y += 8.0f * fElapsedTime;
+        CameraPosition.Y += 8.0f * SecondsElapsedThisFrame;
     }
 
     if (GetKey(olc::DOWN).bHeld)
     {
-        CameraPosition.Y -= 8.0f * fElapsedTime;
+        CameraPosition.Y -= 8.0f * SecondsElapsedThisFrame;
     }
 
     if (GetKey(olc::LEFT).bHeld)
     {
-        CameraPosition.X -= 8.0f * fElapsedTime;
+        CameraPosition.X -= 8.0f * SecondsElapsedThisFrame;
     }
 
     if (GetKey(olc::RIGHT).bHeld)
     {
-        CameraPosition.X += 8.0f * fElapsedTime;
+        CameraPosition.X += 8.0f * SecondsElapsedThisFrame;
     }
 
-    const XGVector3D CameraForwardMovement = CameraLookDirection * 8.0f * fElapsedTime;
+    const XGVector3D CameraForwardMovement = CameraLookDirection * 8.0f * SecondsElapsedThisFrame;
 
     if (GetKey(olc::W).bHeld)
     {
@@ -197,38 +255,24 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
 
     if (GetKey(olc::A).bHeld)
     {
-        CameraYaw -= 2.0f * fElapsedTime;
+        CameraYaw -= 2.0f * SecondsElapsedThisFrame;
     }
 
     if (GetKey(olc::D).bHeld)
     {
-        CameraYaw += 2.0f * fElapsedTime;
+        CameraYaw += 2.0f * SecondsElapsedThisFrame;
     }
+}
 
-    std::cout << "CameraPosition = (" + std::to_string(CameraPosition.X) + ", " + std::to_string(CameraPosition.Y) + ", " + std::to_string(CameraPosition.Z) + ")" << std::endl;
-
-    // Uncomment to enable rotation
-    //RotationAngle += 1.0f * fElapsedTime;
-    const XGMatrix4x4 RotateAroundZAxis = XGMatrix4x4::RotationZ(RotationAngle);
-    const XGMatrix4x4 RotateAroundXAxis = XGMatrix4x4::RotationX(RotationAngle * 0.5f);
-
-    const XGMatrix4x4 TranslateAlongZAxis = XGMatrix4x4::Translation({ 0.0f, 0.0f, 5.0f });
-
-    const XGMatrix4x4 WorldMatrix = RotateAroundZAxis * RotateAroundXAxis * TranslateAlongZAxis;
+void XGEngine::TransformAndProjectTriangles(
+        const XGMesh& Mesh,
+        const XGMatrix4x4& WorldMatrix,
+        const XGMatrix4x4& ViewMatrix,
+        std::vector<XGTriangle>& OutProjectedTriangles)
+{
+    OutProjectedTriangles.clear();
     
-    const XGVector3D CameraUp = { 0.0f, 1.0f, 0.0f };
-
-    const XGVector3D DefaultCameraLookDirection = { 0.0f, 0.0f, 1.0f };
-    CameraLookDirection = XGMatrix4x4::RotationY(CameraYaw) * DefaultCameraLookDirection;
-    const XGVector3D CameraTarget = CameraPosition + CameraLookDirection;
-
-    XGMatrix4x4 ViewMatrix = XGMatrix4x4::PointAt(CameraPosition, CameraTarget, CameraUp);
-    ViewMatrix = ViewMatrix.QuickInverse();
-
-    std::vector<XGTriangle> TrianglesToDraw;
-
-    // Transform and project triangles
-    for (const XGTriangle& Triangle : MeshToRender.Triangles)
+    for (const XGTriangle& Triangle : Mesh.Triangles)
     {
         XGTriangle TransformedTriangle = {
             WorldMatrix * Triangle.Points[0],
@@ -327,36 +371,14 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
             ProjectedTriangle.Points[2].X *= 0.5f * static_cast<float>(ScreenWidth());
             ProjectedTriangle.Points[2].Y *= 0.5f * static_cast<float>(ScreenHeight());
 
-            TrianglesToDraw.push_back(ProjectedTriangle);
+            OutProjectedTriangles.push_back(ProjectedTriangle);
         }
     }
+}
 
-    // We only need to sort triangles in FlatShaded mode. The depth buffer handles draw order issues in textured mode,
-    // and it doesn't matter in wireframe mode.
-    if (RenderMode == FlatShaded)
-    {
-        // Sort triangles from farthest away from the camera to closest
-        std::sort(TrianglesToDraw.begin(), TrianglesToDraw.end(), [](const XGTriangle& Triangle1, const XGTriangle& Triangle2)
-        {
-            // Get the midpoint in the Z axis of the triangles
-            const float Depth1 = (Triangle1.Points[0].Z + Triangle1.Points[1].Z + Triangle1.Points[2].Z) / 3.0f;
-            const float Depth2 = (Triangle2.Points[0].Z + Triangle2.Points[1].Z + Triangle2.Points[2].Z) / 3.0f;
-    
-            return Depth1 < Depth2;
-        });
-    }
-
-    // Clear screen to black
-    FillRect(0, 0, ScreenWidth(), ScreenHeight(), olc::BLACK);
-
-    // Clear the depth buffer
-    for (int i = 0; i < ScreenWidth() * ScreenHeight(); ++i)
-    {
-        DepthBuffer[i] = 0.0f;
-    }
-
-    // Clip and rasterize the triangles
-    for (const XGTriangle& Triangle : TrianglesToDraw)
+void XGEngine::ClipAndRasterizeTriangles(const std::vector<XGTriangle>& Triangles)
+{
+    for (const XGTriangle& Triangle : Triangles)
     {
         std::list<XGTriangle> TriangleList;
         
@@ -408,6 +430,8 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
                         NewTrianglesFromClipping[1]
                     );
                     break;
+                default:
+                    break;
                 }
 
                 for (int i = 0; i < NumTrianglesToAdd; ++i)
@@ -453,18 +477,11 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
             }
         }
     }
-    
-    return true;
-}
-
-olc::Pixel XGEngine::CreateGrayscaleColor(const float& Brightness)
-{
-    return olc::PixelF(Brightness, Brightness, Brightness, 1.0f);
 }
 
 void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprite& TextureSprite)
 {
-    // Create a bunch of local variable's so Javidx9's code is easier to compare to
+    // Create a bunch of local variables so Javidx9's code is easier to compare to
     
     float u1 = Triangle.TextureCoordinates[0].U;
     float u2 = Triangle.TextureCoordinates[1].U;

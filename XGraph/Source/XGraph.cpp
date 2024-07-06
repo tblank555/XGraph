@@ -30,7 +30,7 @@ int main(int ArgC, char* ArgV[])
     );
 
     Demo.RenderMode = Textured;
-    Demo.ShouldDrawWireframe = true;
+    Demo.ShouldDrawWireframe = false;
     
     if (!Demo.Construct(1920, 1080, 1, 1))
     {
