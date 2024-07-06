@@ -481,100 +481,91 @@ void XGEngine::ClipAndRasterizeTriangles(const std::vector<XGTriangle>& Triangle
 
 void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprite& TextureSprite)
 {
-    // Create a bunch of local variables so Javidx9's code is easier to compare to
-    
-    float u1 = Triangle.TextureCoordinates[0].U;
-    float u2 = Triangle.TextureCoordinates[1].U;
-    float u3 = Triangle.TextureCoordinates[2].U;
-    float v1 = Triangle.TextureCoordinates[0].V;
-    float v2 = Triangle.TextureCoordinates[1].V;
-    float v3 = Triangle.TextureCoordinates[2].V;
-    float w1 = Triangle.TextureCoordinates[0].W;
-    float w2 = Triangle.TextureCoordinates[1].W;
-    float w3 = Triangle.TextureCoordinates[2].W;
-
-    // Since we're drawing pixels, we're going to use integer X and Y coordinates
-    int x1 = static_cast<int>(Triangle.Points[0].X);
-    int x2 = static_cast<int>(Triangle.Points[1].X);
-    int x3 = static_cast<int>(Triangle.Points[2].X);
-    int y1 = static_cast<int>(Triangle.Points[0].Y);
-    int y2 = static_cast<int>(Triangle.Points[1].Y);
-    int y3 = static_cast<int>(Triangle.Points[2].Y);
+    // Create local copies of the data so we can swap them to make our calculations easier
+    // Since we're drawing pixels, we use integer X and Y coordinates
+    int X1 = static_cast<int>(Triangle.Points[0].X);
+    int X2 = static_cast<int>(Triangle.Points[1].X);
+    int X3 = static_cast<int>(Triangle.Points[2].X);
+    int Y1 = static_cast<int>(Triangle.Points[0].Y);
+    int Y2 = static_cast<int>(Triangle.Points[1].Y);
+    int Y3 = static_cast<int>(Triangle.Points[2].Y);
+    float U1 = Triangle.TextureCoordinates[0].U;
+    float U2 = Triangle.TextureCoordinates[1].U;
+    float U3 = Triangle.TextureCoordinates[2].U;
+    float V1 = Triangle.TextureCoordinates[0].V;
+    float V2 = Triangle.TextureCoordinates[1].V;
+    float V3 = Triangle.TextureCoordinates[2].V;
+    float W1 = Triangle.TextureCoordinates[0].W;
+    float W2 = Triangle.TextureCoordinates[1].W;
+    float W3 = Triangle.TextureCoordinates[2].W;
 
     // Sort the variables based on the Y position of each point of the triangle
     
-    if (y2 < y1)
+    if (Y2 < Y1)
     {
-        std::swap(y1, y2);
-        std::swap(x1, x2);
-        std::swap(u1, u2);
-        std::swap(v1, v2);
-        std::swap(w1, w2);
+        std::swap(X1, X2);
+        std::swap(Y1, Y2);
+        std::swap(U1, U2);
+        std::swap(V1, V2);
+        std::swap(W1, W2);
     }
 
-    if (y3 < y1)
+    if (Y3 < Y1)
     {
-        std::swap(y1, y3);
-        std::swap(x1, x3);
-        std::swap(u1, u3);
-        std::swap(v1, v3);
-        std::swap(w1, w3);
+        std::swap(X1, X3);
+        std::swap(Y1, Y3);
+        std::swap(U1, U3);
+        std::swap(V1, V3);
+        std::swap(W1, W3);
     }
 
-    if (y3 < y2)
+    if (Y3 < Y2)
     {
-        std::swap(y2, y3);
-        std::swap(x2, x3);
-        std::swap(u2, u3);
-        std::swap(v2, v3);
-        std::swap(w2, w3);
+        std::swap(X2, X3);
+        std::swap(Y2, Y3);
+        std::swap(U2, U3);
+        std::swap(V2, V3);
+        std::swap(W2, W3);
     }
 
     // Calculate the slope of Line A
-    int dy1 = y2 - y1;
-    int dx1 = x2 - x1;
-    float dv1 = v2 - v1;
-    float du1 = u2 - u1;
-    float dw1 = w2 - w1;
+    int LineADeltaX = X2 - X1;
+    int LineADeltaY = Y2 - Y1;
+    float LineADeltaU = U2 - U1;
+    float LineADeltaV = V2 - V1;
+    float LineADeltaW = W2 - W1;
 
     // Calculate the slope of Line B
-    int dy2 = y3 - y1;
-    int dx2 = x3 - x1;
-    float dv2 = v3 - v1;
-    float du2 = u3 - u1;
-    float dw2 = w3 - w1;
+    int LineBDeltaX = X3 - X1;
+    int LineBDeltaY = Y3 - Y1;
+    float LineBDeltaU = U3 - U1;
+    float LineBDeltaV = V3 - V1;
+    float LineBDeltaW = W3 - W1;
 
-    float dax_step = 0.0f;
-    float dbx_step = 0.0f;
-    float du1_step = 0.0f;
-    float dv1_step = 0.0f;
-    float dw1_step = 0.0f;
-    float du2_step = 0.0f;
-    float dv2_step = 0.0f;
-    float dw2_step = 0.0f;
+    float LineAStepX = 0.0f;
+    float LineAStepU = 0.0f;
+    float LineAStepV = 0.0f;
+    float LineAStepW = 0.0f;
+    
+    float LineBStepX = 0.0f;
+    float LineBStepU = 0.0f;
+    float LineBStepV = 0.0f;
+    float LineBStepW = 0.0f;
 
-    if (dy1 > 0)
+    if (LineADeltaY > 0)
     {
-        dax_step = dx1 / static_cast<float>(std::abs(dy1));
+        LineAStepX = static_cast<float>(LineADeltaX) / static_cast<float>(std::abs(LineADeltaY));
+        LineAStepU = LineADeltaU / static_cast<float>(std::abs(LineADeltaY));
+        LineAStepV = LineADeltaV / static_cast<float>(std::abs(LineADeltaY));
+        LineAStepW = LineADeltaW / static_cast<float>(std::abs(LineADeltaY));
     }
 
-    if (dy2 > 0)
+    if (LineBDeltaY > 0)
     {
-        dbx_step = dx2 / static_cast<float>(std::abs(dy2));
-    }
-
-    if (dy1 > 0)
-    {
-        du1_step = du1 / static_cast<float>(std::abs(dy1));
-        dv1_step = dv1 / static_cast<float>(std::abs(dy1));
-        dw1_step = dw1 / static_cast<float>(std::abs(dy1));
-    }
-
-    if (dy2 > 0)
-    {
-        du2_step = du2 / static_cast<float>(std::abs(dy2));
-        dv2_step = dv2 / static_cast<float>(std::abs(dy2));
-        dw2_step = dw2 / static_cast<float>(std::abs(dy2));
+        LineBStepX = static_cast<float>(LineBDeltaX) / static_cast<float>(std::abs(LineBDeltaY));
+        LineBStepU = LineBDeltaU / static_cast<float>(std::abs(LineBDeltaY));
+        LineBStepV = LineBDeltaV / static_cast<float>(std::abs(LineBDeltaY));
+        LineBStepW = LineBDeltaW / static_cast<float>(std::abs(LineBDeltaY));
     }
     
     float TexU;
@@ -582,47 +573,49 @@ void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprit
     float TexW;
 
     // Draw the top half of the triangle as long as Line A isn't flat
-    if (dy1 > 0)
+    if (LineADeltaY > 0)
     {
         // For each row in the top half of the triangle,
-        for (int i = y1; i <= y2; i++)
+        for (int Y = Y1; Y <= Y2; Y++)
         {
-            int ax = x1 + static_cast<float>(i - y1) * dax_step;
-            int bx = x1 + static_cast<float>(i - y1) * dbx_step;
-
-            float UStart = u1 + static_cast<float>(i - y1) * du1_step;
-            float VStart = v1 + static_cast<float>(i - y1) * dv1_step;
-            float WStart = w1 + static_cast<float>(i - y1) * dw1_step;
+            const float CurrentDeltaY = static_cast<float>(Y - Y1);
             
-            float UEnd = u1 + static_cast<float>(i - y1) * du2_step;
-            float VEnd = v1 + static_cast<float>(i - y1) * dv2_step;
-            float WEnd = w1 + static_cast<float>(i - y1) * dw2_step;
+            int LineAX = X1 + static_cast<int>(CurrentDeltaY * LineAStepX);
+            int LineBX = X1 + static_cast<int>(CurrentDeltaY * LineBStepX);
 
-            // Sort ax and bx to make sure we're always going from a smaller X value to a larger one
-            if (ax > bx)
+            float UStart = U1 + CurrentDeltaY * LineAStepU;
+            float VStart = V1 + CurrentDeltaY * LineAStepV;
+            float WStart = W1 + CurrentDeltaY * LineAStepW;
+            
+            float UEnd = U1 + CurrentDeltaY * LineBStepU;
+            float VEnd = V1 + CurrentDeltaY * LineBStepV;
+            float WEnd = W1 + CurrentDeltaY * LineBStepW;
+
+            // Sort our variables to make sure we're always going from a smaller X value to a larger one
+            if (LineAX > LineBX)
             {
-                std::swap(ax, bx);
+                std::swap(LineAX, LineBX);
                 std::swap(UStart, UEnd);
                 std::swap(VStart, VEnd);
                 std::swap(WStart, WEnd);
             }
 
-            float TStep = 1.0f / static_cast<float>(bx - ax);
+            float TStep = 1.0f / static_cast<float>(LineBX - LineAX);
             float T = 0.0f;
 
-            for (int j = ax; j < bx; j++)
+            for (int X = LineAX; X < LineBX; X++)
             {
                 TexU = (1.0f - T) * UStart + T * UEnd;
                 TexV = (1.0f - T) * VStart + T * VEnd;
                 TexW = (1.0f - T) * WStart + T * WEnd;
 
                 // If the depth buffer has pixels that are closer to the screen than this one, don't draw it
-                if (TexW < DepthBuffer[i * ScreenWidth() + j])
+                if (TexW < DepthBuffer[Y * ScreenWidth() + X])
                 {
                     const olc::Pixel SampledColor = TextureSprite.Sample(TexU / TexW, TexV / TexW);
-                    Draw(j, i, SampledColor);
+                    Draw(X, Y, SampledColor);
 
-                    DepthBuffer[i * ScreenWidth() + j] = TexW;
+                    DepthBuffer[Y * ScreenWidth() + X] = TexW;
                 }
                 
                 T += TStep;
@@ -631,76 +624,70 @@ void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprit
     }
 
     // Update our "d" values for the bottom half of the triangle
-    dy1 = y3 - y2;
-    dx1 = x3 - x2;
-    dv1 = v3 - v2;
-    du1 = u3 - u2;
-    dw1 = w3 - w2;
+    LineADeltaY = Y3 - Y2;
+    LineADeltaX = X3 - X2;
+    LineADeltaV = V3 - V2;
+    LineADeltaU = U3 - U2;
+    LineADeltaW = W3 - W2;
 
     // Update the step values only for Line A. Since it's a triangle, Line B will not have changed for the bottom half.
-    du1_step = 0.0f;
-    dv1_step = 0.0f;
-    dw1_step = 0.0f;
+    LineAStepU = 0.0f;
+    LineAStepV = 0.0f;
+    LineAStepW = 0.0f;
 
-    if (dy1 > 0)
+    if (LineADeltaY > 0)
     {
-        dax_step = dx1 / static_cast<float>(std::abs(dy1));
-    }
-
-    if (dy2 > 0)
-    {
-        dbx_step = dx2 / static_cast<float>(std::abs(dy2));
-    }
-
-    if (dy1 > 0)
-    {
-        du1_step = du1 / static_cast<float>(std::abs(dy1));
-        dv1_step = dv1 / static_cast<float>(std::abs(dy1));
-        dw1_step = dw1 / static_cast<float>(std::abs(dy1));
+        LineAStepX = static_cast<float>(LineADeltaX) / static_cast<float>(std::abs(LineADeltaY));
+        LineAStepU = LineADeltaU / static_cast<float>(std::abs(LineADeltaY));
+        LineAStepV = LineADeltaV / static_cast<float>(std::abs(LineADeltaY));
+        LineAStepW = LineADeltaW / static_cast<float>(std::abs(LineADeltaY));
     }
 
     // Draw the bottom half of the triangle as long as Line A isn't flat
-    if (dy1 > 0)
+    if (LineADeltaY > 0)
     {
         // For each row in the bottom half of the triangle,
-        for (int i = y2; i <= y3; i++)
+        for (int Y = Y2; Y <= Y3; Y++)
         {
-            int ax = x2 + static_cast<float>(i - y2) * dax_step;
-            int bx = x1 + static_cast<float>(i - y1) * dbx_step;
+            const auto CurrentLineADeltaY = static_cast<float>(Y - Y2);
+            const auto CurrentLineBDeltaY = static_cast<float>(Y - Y1);
+            
+            int LineAX = X2 + static_cast<int>(CurrentLineADeltaY * LineAStepX);
+            int LineBX = X1 + static_cast<int>(CurrentLineBDeltaY * LineBStepX);
 
-            float UStart = u2 + static_cast<float>(i - y2) * du1_step;
-            float VStart = v2 + static_cast<float>(i - y2) * dv1_step;
-            float WStart = w2 + static_cast<float>(i - y2) * dw1_step;
+            float UStart = U2 + CurrentLineADeltaY * LineAStepU;
+            float VStart = V2 + CurrentLineADeltaY * LineAStepV;
+            float WStart = W2 + CurrentLineADeltaY * LineAStepW;
         
-            float UEnd = u1 + static_cast<float>(i - y1) * du2_step;
-            float VEnd = v1 + static_cast<float>(i - y1) * dv2_step;
-            float WEnd = w1 + static_cast<float>(i - y1) * dw2_step;
+            float UEnd = U1 + CurrentLineBDeltaY * LineBStepU;
+            float VEnd = V1 + CurrentLineBDeltaY * LineBStepV;
+            float WEnd = W1 + CurrentLineBDeltaY * LineBStepW;
 
-            // Sort ax and bx to make sure we're always going from a smaller X value to a larger one
-            if (ax > bx)
+            // Sort our variables to make sure we're always going from a smaller X value to a larger one
+            if (LineAX > LineBX)
             {
-                std::swap(ax, bx);
+                std::swap(LineAX, LineBX);
                 std::swap(UStart, UEnd);
                 std::swap(VStart, VEnd);
                 std::swap(WStart, WEnd);
             }
 
-            float TStep = 1.0f / static_cast<float>(bx - ax);
+            float TStep = 1.0f / static_cast<float>(LineBX - LineAX);
             float T = 0.0f;
 
-            for (int j = ax; j < bx; j++)
+            for (int X = LineAX; X < LineBX; X++)
             {
                 TexU = (1.0f - T) * UStart + T * UEnd;
                 TexV = (1.0f - T) * VStart + T * VEnd;
                 TexW = (1.0f - T) * WStart + T * WEnd;
 
                 // If the depth buffer has pixels that are closer to the screen than this one, don't draw it
-                if (TexW < DepthBuffer[i * ScreenWidth() + j])
+                if (TexW < DepthBuffer[Y * ScreenWidth() + X])
                 {
                     const olc::Pixel SampledColor = TextureSprite.Sample(TexU / TexW, TexV / TexW);
-                    Draw(j, i, SampledColor);
+                    Draw(X, Y, SampledColor);
 
-                    DepthBuffer[i * ScreenWidth() + j] = TexW;
+                    DepthBuffer[Y * ScreenWidth() + X] = TexW;
                 }
             
                 T += TStep;
