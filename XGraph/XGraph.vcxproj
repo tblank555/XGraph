@@ -168,7 +168,6 @@
     <ClCompile Include="Source\XGMesh.cpp" />
     <ClCompile Include="Source\XGraph.cpp" />
     <ClCompile Include="Source\XGTriangle.cpp" />
-    <ClCompile Include="Source\XGVector2D.cpp" />
     <ClCompile Include="Source\XGVector3D.cpp" />
     <ClCompile Include="ThirdParty\olcPixelGameEngine.cpp" />
   </ItemGroup>
