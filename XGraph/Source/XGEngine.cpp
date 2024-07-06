@@ -311,9 +311,8 @@ void XGEngine::TransformAndProjectTriangles(
 
         // Clip the triangle in view space against the near clip plane
         // In world space, the near clip plane will always have a normal pointing along the Z axis
-        int ClippedTriangleCount = -1;
         XGTriangle ClippedTriangles[2];
-        ClippedTriangleCount = ViewedTriangle.ClipAgainstPlane(
+        const int ClippedTriangleCount = ViewedTriangle.ClipAgainstPlane(
             { 0.0f, 0.0f, NearClipPlane },
             { 0.0f, 0.0f, 1.0f },
             ClippedTriangles[0],
@@ -578,7 +577,7 @@ void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprit
         // For each row in the top half of the triangle,
         for (int Y = Y1; Y <= Y2; Y++)
         {
-            const float CurrentDeltaY = static_cast<float>(Y - Y1);
+            const auto CurrentDeltaY = static_cast<float>(Y - Y1);
             
             int LineAX = X1 + static_cast<int>(CurrentDeltaY * LineAStepX);
             int LineBX = X1 + static_cast<int>(CurrentDeltaY * LineBStepX);
