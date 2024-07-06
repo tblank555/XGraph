@@ -14,7 +14,8 @@ class XGEngine : public olc::PixelGameEngine
 {
 public:
     XGEngine() : XGEngine("") {}
-    XGEngine(const std::string& MeshFilePath);
+    XGEngine(const std::string& MeshFilePath) : XGEngine(MeshFilePath, "") {}
+    XGEngine(const std::string& MeshFilePath, const std::string& TextureFilePath, bool InvertUVMapping = false);
 
     /**
      * \brief The distance the near clip plane should be from the camera

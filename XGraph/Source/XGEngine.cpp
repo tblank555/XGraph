@@ -9,11 +9,12 @@
 #include <string>
 #include "XGTriangle.h"
 
-XGEngine::XGEngine(const std::string& MeshFilePath)
+XGEngine::XGEngine(const std::string& MeshFilePath, const std::string& TextureFilePath, bool InvertUVMapping)
 {
     if (!MeshFilePath.empty())
     {
-        MeshToRender.LoadFromObjectFile(MeshFilePath);
+        bool HasTexture = !TextureFilePath.empty();
+        MeshToRender.LoadFromObjectFile(MeshFilePath, true, InvertUVMapping);
     }
     else
     {
@@ -123,6 +124,15 @@ XGEngine::XGEngine(const std::string& MeshFilePath)
             )
         };
     }
+
+    if (!TextureFilePath.empty())
+    {
+        TextureToRender = new olc::Sprite();
+        if (TextureToRender->LoadFromFile(TextureFilePath) != olc::OK)
+        {
+            std::cout << "ERROR: Failed to load texture at path: " << TextureFilePath << std::endl;
+        }
+    }
 }
 
 bool XGEngine::OnUserCreate()
@@ -142,13 +152,6 @@ bool XGEngine::OnUserCreate()
     // Set and normalize the global directional light
     LightDirection = { 0.0f, 1.0f, -1.0f };
     LightDirection.Normalize();
-
-    // Load the global texture
-    TextureToRender = new olc::Sprite();
-    if (TextureToRender->LoadFromFile("Resources/BlueCircle.bmp") != olc::OK)
-    {
-        std::cout << "ERROR: Failed to load texture" << std::endl;
-    }
     
     return true;
 }

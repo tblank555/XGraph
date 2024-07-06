@@ -23,7 +23,12 @@
 
 int main(int ArgC, char* ArgV[])
 {
-    XGEngine Demo;
+    XGEngine Demo(
+        "Resources/SpyroLevel.obj",
+        "Resources/SpyroLevelTextureHigh.bmp",
+        true
+    );
+    
     if (!Demo.Construct(1920, 1080, 1, 1))
     {
         // TODO: Log error here
