@@ -52,4 +52,13 @@ struct XGVector3D
 
     float DotProduct(const XGVector3D& OtherVector) const;
     XGVector3D CrossProduct(const XGVector3D& OtherVector) const;
+
+    /**
+     * \brief Returns the signed distance of this vector from the given plane
+     * \details Sign will be positive if the vector describes a position that lies on the side of the plane that the
+     * normal is pointing to
+     * \param PointOnPlane Any point on the plane
+     * \param PlaneNormal The normal of the plane
+     */
+    float GetSignedDistanceToPlane(const XGVector3D& PointOnPlane, const XGVector3D& PlaneNormal) const;
 };

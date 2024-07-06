@@ -113,3 +113,9 @@ XGVector3D XGVector3D::CrossProduct(const XGVector3D& OtherVector) const
         X * OtherVector.Y - Y * OtherVector.X
     };
 }
+
+float XGVector3D::GetSignedDistanceToPlane(const XGVector3D& PointOnPlane, const XGVector3D& PlaneNormal) const
+{
+    const XGVector3D NormalizedPlaneNormal = PlaneNormal.GetNormalizedCopy();
+    return NormalizedPlaneNormal.X * X + NormalizedPlaneNormal.Y * Y + NormalizedPlaneNormal.Z * Z - NormalizedPlaneNormal.DotProduct(PointOnPlane);
+}

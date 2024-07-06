@@ -22,12 +22,8 @@ int XGTriangle::ClipAgainstPlane(
     XGTriangle& OutTriangle1,
     XGTriangle& OutTriangle2) const
 {
+    // Ensure the normal is normalized
     const XGVector3D NormalizedPlaneNormal = PlaneNormal.GetNormalizedCopy();
-
-    auto GetSignedDistanceToPlane = [&](const XGVector3D& Position)
-    {
-        return (NormalizedPlaneNormal.X * Position.X + NormalizedPlaneNormal.Y * Position.Y + NormalizedPlaneNormal.Z * Position.Z - NormalizedPlaneNormal.DotProduct(PointOnPlane));
-    };
 
     const XGVector3D* InsidePoints[3];
     int InsidePointCount = 0;
@@ -35,53 +31,32 @@ int XGTriangle::ClipAgainstPlane(
     int OutsidePointCount = 0;
 
     const XGVector2D* InsideTextureCoordinates[3];
-    int InsideTextureCoordinateCount = 0;
     const XGVector2D* OutsideTextureCoordinates[3];
-    int OutsideTextureCoordinateCount = 0;
-
-    const float Distance0 = GetSignedDistanceToPlane(Points[0]);
-    const float Distance1 = GetSignedDistanceToPlane(Points[1]);
-    const float Distance2 = GetSignedDistanceToPlane(Points[2]);
 
     // If the signed distance to the plane is positive, then the point lies inside the clipping plane
-    
-    if (Distance0 >= 0.0f)
+    for (int PointIndex = 0; PointIndex < 3; ++PointIndex)
     {
-        InsidePoints[InsidePointCount++] = &Points[0];
-        InsideTextureCoordinates[InsideTextureCoordinateCount++] = &TextureCoordinates[0];
-    }
-    else
-    {
-        OutsidePoints[OutsidePointCount++] = &Points[0];
-        OutsideTextureCoordinates[OutsideTextureCoordinateCount++] = &TextureCoordinates[0];
-    }
-
-    if (Distance1 >= 0.0f)
-    {
-        InsidePoints[InsidePointCount++] = &Points[1];
-        InsideTextureCoordinates[InsideTextureCoordinateCount++] = &TextureCoordinates[1];
-    }
-    else
-    {
-        OutsidePoints[OutsidePointCount++] = &Points[1];
-        OutsideTextureCoordinates[OutsideTextureCoordinateCount++] = &TextureCoordinates[1];
+        const float SignedDistance = Points[PointIndex].GetSignedDistanceToPlane(PointOnPlane, NormalizedPlaneNormal);
+        if (SignedDistance > 0.0f)
+        {
+            InsidePoints[InsidePointCount] = &Points[PointIndex];
+            InsideTextureCoordinates[InsidePointCount] = &TextureCoordinates[PointIndex];
+            InsidePointCount++;
+        }
+        else
+        {
+            OutsidePoints[OutsidePointCount] = &Points[PointIndex];
+            OutsideTextureCoordinates[OutsidePointCount] = &TextureCoordinates[PointIndex];
+            OutsidePointCount++;
+        }
     }
 
-    if (Distance2 >= 0.0f)
-    {
-        InsidePoints[InsidePointCount++] = &Points[2];
-        InsideTextureCoordinates[InsideTextureCoordinateCount++] = &TextureCoordinates[2];
-    }
-    else
-    {
-        OutsidePoints[OutsidePointCount++] = &Points[2];
-        OutsideTextureCoordinates[OutsideTextureCoordinateCount++] = &TextureCoordinates[2];
-    }
+    int NumTrianglesAfterClipping = -1; 
 
     if (InsidePointCount == 0)
     {
         // All points of the triangle are outside the clipping plane
-        return 0;
+        NumTrianglesAfterClipping = 0;
     }
     else if (InsidePointCount == 1)
     {
@@ -129,7 +104,7 @@ int XGTriangle::ClipAgainstPlane(
         OutTriangle1.TextureCoordinates[2].V = IntersectionScale2 * (OutsideTextureCoordinates[1]->V - InsideTextureCoordinates[0]->V) + InsideTextureCoordinates[0]->V;
         OutTriangle1.TextureCoordinates[2].W = IntersectionScale2 * (OutsideTextureCoordinates[1]->W - InsideTextureCoordinates[0]->W) + InsideTextureCoordinates[0]->W;
 
-        return 1;
+        NumTrianglesAfterClipping = 1;
     }
     else if (InsidePointCount == 2)
     {
@@ -190,15 +165,18 @@ int XGTriangle::ClipAgainstPlane(
         OutTriangle2.TextureCoordinates[2].V = IntersectionScale2 * (OutsideTextureCoordinates[0]->V - InsideTextureCoordinates[1]->V) + InsideTextureCoordinates[1]->V;
         OutTriangle2.TextureCoordinates[2].W = IntersectionScale2 * (OutsideTextureCoordinates[0]->W - InsideTextureCoordinates[1]->W) + InsideTextureCoordinates[1]->W;
 
-        return 2;
+        NumTrianglesAfterClipping = 2;
     }
     else if (InsidePointCount == 3)
     {
         // All points of the triangle are inside the clipping plane, so no need to calculate new triangles
         OutTriangle1 = *this;
-        return 1;
+        NumTrianglesAfterClipping = 1;
     }
-
-    std::cout << "ERROR: Unexpected triangle point count while clipping. InsidePointCount = " << std::to_string(InsidePointCount) << ", OutsidePointCount = " << std::to_string(OutsidePointCount) << std::endl;
-    return -1;
+    else
+    {
+        std::cout << "ERROR: XGTriangle::ClipAgainstPlane: Unexpected triangle point count while clipping. InsidePointCount = " << std::to_string(InsidePointCount) << ", OutsidePointCount = " << std::to_string(OutsidePointCount) << std::endl;
+    }
+    
+    return NumTrianglesAfterClipping;
 }

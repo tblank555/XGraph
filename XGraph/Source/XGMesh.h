@@ -14,5 +14,5 @@ struct XGMesh
 {
     std::vector<XGTriangle> Triangles;
 
-    bool LoadFromObjectFile(std::string FilePath, bool HasTexture = false, bool InvertUVMapping = false);
+    bool LoadFromObjectFile(const std::string& FilePath, bool HasTexture = false, bool InvertUVMapping = false);
 };

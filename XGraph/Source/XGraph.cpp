@@ -34,7 +34,7 @@ int main(int ArgC, char* ArgV[])
     
     if (!Demo.Construct(1920, 1080, 1, 1))
     {
-        // TODO: Log error here
+        std::cout << "ERROR: Failed to construct engine" << std::endl;
         return 1;
     }
 

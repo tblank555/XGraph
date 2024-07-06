@@ -10,12 +10,12 @@
 #include <fstream>
 #include <strstream>
 
-bool XGMesh::LoadFromObjectFile(std::string FilePath, bool HasTexture, bool InvertUVMapping)
+bool XGMesh::LoadFromObjectFile(const std::string& FilePath, bool HasTexture, bool InvertUVMapping)
 {
     std::ifstream FileStream(FilePath);
     if (!FileStream.is_open())
     {
-        // TODO: Log an error here
+        std::cout << "ERROR: XGMesh::LoadFromObjectFile: Failed to open file stream at file path: " << FilePath << std::endl;
         return false;
     }
 
