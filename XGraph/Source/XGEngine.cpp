@@ -152,15 +152,15 @@ bool XGEngine::OnUserCreate()
     // Set and normalize the global directional light
     LightDirection = { 0.0f, 1.0f, -1.0f };
     LightDirection.Normalize();
+
+    // Initialize the depth buffer
+    DepthBuffer = new float[ScreenWidth() * ScreenHeight()];
     
     return true;
 }
 
 bool XGEngine::OnUserUpdate(float fElapsedTime)
 {
-    // Clear screen to black
-    FillRect(0, 0, ScreenWidth(), ScreenHeight(), olc::BLACK);
-
     // Process keyboard input
     
     if (GetKey(olc::UP).bHeld)
@@ -332,14 +332,23 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
     }
 
     // Sort triangles from farthest away from the camera to closest
-    std::sort(TrianglesToDraw.begin(), TrianglesToDraw.end(), [](const XGTriangle& Triangle1, const XGTriangle& Triangle2)
-    {
-        // Get the midpoint in the Z axis of the triangles
-        const float Depth1 = (Triangle1.Points[0].Z + Triangle1.Points[1].Z + Triangle1.Points[2].Z) / 3.0f;
-        const float Depth2 = (Triangle2.Points[0].Z + Triangle2.Points[1].Z + Triangle2.Points[2].Z) / 3.0f;
+    // std::sort(TrianglesToDraw.begin(), TrianglesToDraw.end(), [](const XGTriangle& Triangle1, const XGTriangle& Triangle2)
+    // {
+    //     // Get the midpoint in the Z axis of the triangles
+    //     const float Depth1 = (Triangle1.Points[0].Z + Triangle1.Points[1].Z + Triangle1.Points[2].Z) / 3.0f;
+    //     const float Depth2 = (Triangle2.Points[0].Z + Triangle2.Points[1].Z + Triangle2.Points[2].Z) / 3.0f;
+    //
+    //     return Depth1 < Depth2;
+    // });
 
-        return Depth1 < Depth2;
-    });
+    // Clear screen to black
+    FillRect(0, 0, ScreenWidth(), ScreenHeight(), olc::BLACK);
+
+    // Clear the depth buffer
+    for (int i = 0; i < ScreenWidth() * ScreenHeight(); ++i)
+    {
+        DepthBuffer[i] = 0.0f;
+    }
 
     // Clip and rasterize the triangles
     for (const XGTriangle& Triangle : TrianglesToDraw)
@@ -582,8 +591,14 @@ void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprit
                 TexV = (1.0f - T) * VStart + T * VEnd;
                 TexW = (1.0f - T) * WStart + T * WEnd;
 
-                const olc::Pixel SampledColor = TextureSprite.Sample(TexU / TexW, TexV / TexW);
-                Draw(j, i, SampledColor);
+                // If the depth buffer has pixels that are closer to the screen than this one, don't draw it
+                if (TexW < DepthBuffer[i * ScreenWidth() + j])
+                {
+                    const olc::Pixel SampledColor = TextureSprite.Sample(TexU / TexW, TexV / TexW);
+                    Draw(j, i, SampledColor);
+
+                    DepthBuffer[i * ScreenWidth() + j] = TexW;
+                }
                 
                 T += TStep;
             }
@@ -654,8 +669,14 @@ void XGEngine::DrawTexturedTriangle(const XGTriangle& Triangle, const olc::Sprit
                 TexV = (1.0f - T) * VStart + T * VEnd;
                 TexW = (1.0f - T) * WStart + T * WEnd;
 
-                const olc::Pixel SampledColor = TextureSprite.Sample(TexU / TexW, TexV / TexW);
-                Draw(j, i, SampledColor);
+                // If the depth buffer has pixels that are closer to the screen than this one, don't draw it
+                if (TexW < DepthBuffer[i * ScreenWidth() + j])
+                {
+                    const olc::Pixel SampledColor = TextureSprite.Sample(TexU / TexW, TexV / TexW);
+                    Draw(j, i, SampledColor);
+
+                    DepthBuffer[i * ScreenWidth() + j] = TexW;
+                }
             
                 T += TStep;
             }

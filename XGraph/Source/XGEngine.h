@@ -71,6 +71,11 @@ private:
     float RotationAngle = 0.0f;
 
     /**
+     * \brief The depth value (W) of the texture being drawn at each pixel on the screen
+     */
+    float* DepthBuffer = nullptr;
+
+    /**
      * \brief Create a grayscale color
      * \param Brightness A value from 0 to 1 that indicates how bright the color should be. 0 = black, 1 = white.
      * \return The color
