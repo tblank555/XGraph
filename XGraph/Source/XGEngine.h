@@ -10,6 +10,16 @@
 #include "XGMesh.h"
 #include "XGVector3D.h"
 
+/**
+ * \brief The different types of rendering the engine is capable of performing
+ */
+enum XGRenderMode
+{
+    Wireframe,
+    FlatShaded,
+    Textured
+};
+
 class XGEngine : public olc::PixelGameEngine
 {
 public:
@@ -17,6 +27,16 @@ public:
     XGEngine(const std::string& MeshFilePath) : XGEngine(MeshFilePath, "") {}
     XGEngine(const std::string& MeshFilePath, const std::string& TextureFilePath, bool InvertUVMapping = false);
 
+    /**
+     * \brief The type of rendering the engine should perform
+     */
+    XGRenderMode RenderMode = Textured;
+
+    /**
+     * \brief Whether wireframes should be drawn, even when in a RenderMode other than Wireframe
+     */
+    bool ShouldDrawWireframe = false;
+    
     /**
      * \brief The distance the near clip plane should be from the camera
      */
@@ -26,8 +46,6 @@ public:
      * \brief The direction of the global directional light
      */
     XGVector3D LightDirection;
-
-    bool ShouldDrawWireframe = false;
 
     bool OnUserCreate() override;
     bool OnUserUpdate(float fElapsedTime) override;

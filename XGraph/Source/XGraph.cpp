@@ -28,14 +28,15 @@ int main(int ArgC, char* ArgV[])
         "Resources/SpyroLevelTextureHigh.bmp",
         true
     );
+
+    Demo.RenderMode = Textured;
+    Demo.ShouldDrawWireframe = true;
     
     if (!Demo.Construct(1920, 1080, 1, 1))
     {
         // TODO: Log error here
         return 1;
     }
-
-    Demo.ShouldDrawWireframe = false;
 
     Demo.Start();
     

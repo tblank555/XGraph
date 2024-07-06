@@ -13,8 +13,8 @@ XGEngine::XGEngine(const std::string& MeshFilePath, const std::string& TextureFi
 {
     if (!MeshFilePath.empty())
     {
-        bool HasTexture = !TextureFilePath.empty();
-        MeshToRender.LoadFromObjectFile(MeshFilePath, true, InvertUVMapping);
+        const bool HasTexture = !TextureFilePath.empty();
+        MeshToRender.LoadFromObjectFile(MeshFilePath, HasTexture, InvertUVMapping);
     }
     else
     {
@@ -331,15 +331,20 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
         }
     }
 
-    // Sort triangles from farthest away from the camera to closest
-    // std::sort(TrianglesToDraw.begin(), TrianglesToDraw.end(), [](const XGTriangle& Triangle1, const XGTriangle& Triangle2)
-    // {
-    //     // Get the midpoint in the Z axis of the triangles
-    //     const float Depth1 = (Triangle1.Points[0].Z + Triangle1.Points[1].Z + Triangle1.Points[2].Z) / 3.0f;
-    //     const float Depth2 = (Triangle2.Points[0].Z + Triangle2.Points[1].Z + Triangle2.Points[2].Z) / 3.0f;
-    //
-    //     return Depth1 < Depth2;
-    // });
+    // We only need to sort triangles in FlatShaded mode. The depth buffer handles draw order issues in textured mode,
+    // and it doesn't matter in wireframe mode.
+    if (RenderMode == FlatShaded)
+    {
+        // Sort triangles from farthest away from the camera to closest
+        std::sort(TrianglesToDraw.begin(), TrianglesToDraw.end(), [](const XGTriangle& Triangle1, const XGTriangle& Triangle2)
+        {
+            // Get the midpoint in the Z axis of the triangles
+            const float Depth1 = (Triangle1.Points[0].Z + Triangle1.Points[1].Z + Triangle1.Points[2].Z) / 3.0f;
+            const float Depth2 = (Triangle2.Points[0].Z + Triangle2.Points[1].Z + Triangle2.Points[2].Z) / 3.0f;
+    
+            return Depth1 < Depth2;
+        });
+    }
 
     // Clear screen to black
     FillRect(0, 0, ScreenWidth(), ScreenHeight(), olc::BLACK);
@@ -417,7 +422,24 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
         // Rasterize the final list of triangles
         for (const XGTriangle& TriangleToRasterize : TriangleList)
         {
-            if (ShouldDrawWireframe)
+            if (RenderMode == FlatShaded)
+            {
+                FillTriangle(
+                    static_cast<int32_t>(TriangleToRasterize.Points[0].X),
+                    static_cast<int32_t>(TriangleToRasterize.Points[0].Y),
+                    static_cast<int32_t>(TriangleToRasterize.Points[1].X),
+                    static_cast<int32_t>(TriangleToRasterize.Points[1].Y),
+                    static_cast<int32_t>(TriangleToRasterize.Points[2].X),
+                    static_cast<int32_t>(TriangleToRasterize.Points[2].Y),
+                    Triangle.Color
+                );
+            }
+            else if (RenderMode == Textured)
+            {
+                DrawTexturedTriangle(TriangleToRasterize, *TextureToRender);
+            }
+
+            if (RenderMode == Wireframe || ShouldDrawWireframe)
             {
                 DrawTriangle(
                     static_cast<int32_t>(TriangleToRasterize.Points[0].X),
@@ -428,20 +450,6 @@ bool XGEngine::OnUserUpdate(float fElapsedTime)
                     static_cast<int32_t>(TriangleToRasterize.Points[2].Y),
                     olc::WHITE
                 );
-            }
-            else
-            {
-                // FillTriangle(
-                //     static_cast<int32_t>(TriangleToRasterize.Points[0].X),
-                //     static_cast<int32_t>(TriangleToRasterize.Points[0].Y),
-                //     static_cast<int32_t>(TriangleToRasterize.Points[1].X),
-                //     static_cast<int32_t>(TriangleToRasterize.Points[1].Y),
-                //     static_cast<int32_t>(TriangleToRasterize.Points[2].X),
-                //     static_cast<int32_t>(TriangleToRasterize.Points[2].Y),
-                //     Triangle.Color
-                // );
-
-                DrawTexturedTriangle(TriangleToRasterize, *TextureToRender);
             }
         }
     }
